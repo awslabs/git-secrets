@@ -107,7 +107,7 @@ merge_patterns_from_file() {
   done < "${filename}"
 }
 
-# Loads ~/.git-secrets and .git-secrets patterns and echoes them.
+# Loads ~/.git-secrets and .git-secrets patterns.
 # Pass $1 to disable utilizing the local secrets file when scanning.
 load_all_patterns() {
   local -i found_secrets=0
