@@ -16,9 +16,10 @@ First clone the repository. Then run the following command::
     ./install.sh
 
 The ``install.sh`` script will install a global ``git secrets`` git subcommand
-that can be used ad-hoc with any git project. The command accepts the path to a
-file to check and will report if any of the prohibited matches are found in the
-file.
+that can be used ad-hoc with any git project.
+
+The ``git-secrets scan`` command accepts the path to a file to check and will
+report if any of the prohibited matches are found in the file.
 
 ::
 
@@ -28,9 +29,9 @@ file.
 
 ``git secrets scan`` will first scan the given file for any of the prohibited
 regular expression patterns defined in the current git project's
-``.git-secrets`` file and then scan the file using the globally defined secrets
-file located at ``~/.git-secrets``. If neither of these *pattern files* can be
-found, then ``git secrets`` will fail with exit code ``1``.
+``.git-secrets`` file (if available) and then scan the file using the globally
+defined secrets file located at ``~/.git-secrets``. If neither of these
+*pattern files* can be found, then ``git secrets scan`` will fail.
 
 
 Installing git hooks for a project
@@ -59,7 +60,8 @@ This project installs several hooks:
 2. ``commit-msg``: Used to determine if a commit message contains a prohibited
    patterns.
 3. ``prepare-commit-msg``: Used to determine if a merge commit will introduce
-   a history that contains a prohibited pattern at any point.
+   a history that contains a prohibited pattern at any point. Please note that
+   this hook is only invoked for non fast-forward merges.
 
 
 Debian style directories
@@ -98,6 +100,11 @@ one is created.
     ``GIT_SECRETS_FILE`` environement variable are not present in the local
     ``.git-secrets`` file.
 
+.. tip::
+
+    Use the ``--no-verify`` option in the even of a false-positive match in a
+    commit, merge, or commit message.
+
 
 Example secrets file
 ~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +121,11 @@ commit.
 You could place the above contents into ``~/.git-secrets`` to ensure that none
 of your git commits contain your access keys, and you could still define
 per-project patterns by placing a file in the ``.git-secrets`` file of your
-repo. Note: the secret key pattern checks to see if it is assigned to a value.
+repo.
+
+Note: in order to limit the number of false positives, the secret key pattern
+checks to see if it is assigned to a value.
+
 
 .. warning::
 
