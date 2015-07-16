@@ -11,12 +11,19 @@ at ``~/.git-secrets``, then the commit is rejected.
 Installing
 ----------
 
-First clone the repository. Then run the following command::
+Clone the repository and run ``install.sh``::
 
     ./install.sh
 
-The ``install.sh`` script will install a global ``git secrets`` git subcommand
-that can be used ad-hoc with any git project.
+``install.sh`` script will install a global ``git secrets`` git subcommand that
+can be used ad-hoc with any git project. You can pass the path to where the
+script should be installed as an argument to ``install.sh``::
+
+    ./install.sh /path/to/where/to/install
+
+If no path is provided, ``install.sh`` will attempt to install ``git-secrets``
+to ``/usr/local/bin`` if is available, and as a last resort to the directory
+returned from ``git --exec-path``.
 
 The ``git-secrets scan`` command accepts the path to a file to check and will
 report if any of the prohibited matches are found in the file.
