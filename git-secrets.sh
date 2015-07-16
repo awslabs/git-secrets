@@ -112,24 +112,17 @@ merge_patterns_from_file() {
 # Loads ~/.git-secrets and .git-secrets patterns.
 # Pass $1 to disable utilizing the local secrets file when scanning.
 load_all_patterns() {
-  local -i found_secrets=0
   local -i exclude_local_secrets="$1"
   local -r local_patterns="$(git_repo_root)/.git-secrets"
   local home_location="${HOME}/.git-secrets"
 
   if [ -f "${home_location}" ]; then
-    found_secrets=1
     merge_patterns_from_file "${home_location}"
   fi
 
-  if [ -f "${local_patterns}" ]; then
-    found_secrets=1
-    if [ $exclude_local_secrets -ne 1 ]; then
-      merge_patterns_from_file "${local_patterns}"
-    fi
+  if [ -f "${local_patterns}" ] && [ $exclude_local_secrets -ne 1 ]; then
+    merge_patterns_from_file "${local_patterns}"
   fi
-
-  [ $found_secrets -eq 0 ] && die "No secrets file can be found"
 }
 
 #######################################################################

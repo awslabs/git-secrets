@@ -30,8 +30,7 @@ report if any of the prohibited matches are found in the file.
 ``git secrets scan`` will first scan the given file for any of the prohibited
 regular expression patterns defined in the current git project's
 ``.git-secrets`` file (if available) and then scan the file using the globally
-defined secrets file located at ``~/.git-secrets``. If neither of these
-*pattern files* can be found, then ``git secrets scan`` will fail.
+defined secrets file located at ``~/.git-secrets``.
 
 
 Installing git hooks for a project
@@ -86,10 +85,7 @@ files, called *pattern files* that contain regular expressions separated by new
 lines.
 
 git-secrets scans text using pattern files located in the ``.git-secrets`` file
-in the root of a git directory, and a global ``~/.git-secrets`` file. If
-neither a per-project ``.git-secrets`` or global ``~/.git-secrets`` file are
-found, then ``git secrets`` and any git hook that relies on it will fail until
-one is created.
+in the root of a git directory, and a global ``~/.git-secrets`` file.
 
 .. note::
 
