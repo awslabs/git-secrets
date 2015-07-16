@@ -10,7 +10,11 @@ declare PATTERNS=""
 #######################################################################
 
 color() {
-  [ -t 1 ] && echo "$(tput setaf $1)${@:2}$(tput sgr 0)" || echo $2
+  if [ -t 1 ]; then
+    echo "$(tput setaf $1)${@:2}$(tput sgr 0)"
+  else
+    echo $2
+  fi
 }
 
 green() { color 2 "$@"; }
@@ -34,7 +38,6 @@ usage() {
   echo "Commands:"
   echo "  scan     Scans the passed in file name for prohibited patterns."
   echo "  install  Installs git hooks for a repository."
-  echo
   exit 0
 }
 
@@ -87,7 +90,6 @@ prohibited_warning() {
   echo "You can view the prohibited pattern matches in the"
   echo "above output. Please remove these patterns, rebase,"
   echo "and resubmit the patch."
-  echo
 }
 
 #######################################################################
