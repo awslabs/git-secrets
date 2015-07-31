@@ -109,6 +109,14 @@ merge_patterns_from_file() {
   done < "${filename}"
 }
 
+check_home_secrets_permissions() {
+  local -r home_location="$1"
+  if [ $(get_octal_permissions "${home_location}") -ne 600 ]; then
+    yellow "Warning: Unprotected home secrets file. ${home_location}" \
+           "should have 600 permission."
+  fi
+}
+
 # Loads ~/.git-secrets and .git-secrets patterns.
 # Pass $1 to disable utilizing the local secrets file when scanning.
 load_all_patterns() {
@@ -118,6 +126,7 @@ load_all_patterns() {
   local home_location="${HOME}/.git-secrets"
 
   if [ -f "${home_location}" ]; then
+    check_home_secrets_permissions "${home_location}"
     found_secrets=1
     merge_patterns_from_file "${home_location}"
   fi
@@ -135,6 +144,12 @@ load_all_patterns() {
 #######################################################################
 # Scanning files
 #######################################################################
+
+get_octal_permissions() {
+  local -r file="$1"
+  # Account for OS X and BSD
+  stat -c '%a' "${file}" > /dev/null 2>&1 || stat -f '%A' "${file}"
+}
 
 negative_grep() {
   local -r pattern="$1"
