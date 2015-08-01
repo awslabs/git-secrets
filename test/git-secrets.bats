@@ -2,6 +2,14 @@
 
 load test_helper
 
+setup() {
+  git config git-secrets.file "${TMP_SECRETS}"
+}
+
+teardown() {
+  git config --unset git-secrets.file
+}
+
 @test "no arguments prints usage instructions" {
   run ./git-secrets.sh
   [ $status -eq 0 ]
@@ -29,7 +37,8 @@ load test_helper
 }
 
 @test "Ensures secrets file is valid" {
-  GIT_SECRETS_FILE=/foo run ./git-secrets.sh scan test/git-secrets.bats
+  git config git-secrets.file /foo
+  run ./git-secrets.sh scan test/git-secrets.bats
   [ $status -eq 1 ]
   [ "${lines[0]}" == "Secrets file not found: /foo" ]
 }
@@ -37,8 +46,7 @@ load test_helper
 @test "No prohibited matches exits 0" {
   create_secrets
   echo 'it is ok' > "$BATS_TMPDIR/test.txt"
-  GIT_SECRETS_FILE=$TMP_SECRETS run \
-    ./git-secrets.sh scan "$BATS_TMPDIR/test.txt"
+  run ./git-secrets.sh scan "$BATS_TMPDIR/test.txt"
   [ $status -eq 0 ]
 }
 
@@ -47,7 +55,8 @@ load test_helper
   file="$BATS_TMPDIR/test.txt"
   echo '@todo stuff' > $file
   echo 'this is forbidden right?' >> $file
-  GIT_SECRETS_FILE=$TMP_SECRETS run ./git-secrets.sh scan $file
+  run ./git-secrets.sh scan $file
+  echo "${lines[0]}" > /tmp/output
   [ $status -eq 1 ]
   [ "${lines[0]}" == "$file:1:@todo stuff" ]
   [ "${lines[1]}" == "$file:2:this is forbidden right?" ]
@@ -61,7 +70,7 @@ load test_helper
   # The following do match because they are in word boundaries.
   echo 'foo.me' >> $file
   echo '"me"' >> $file
-  GIT_SECRETS_FILE=$TMP_SECRETS run ./git-secrets.sh scan $file
+  run ./git-secrets.sh scan $file
   [ $status -eq 1 ]
   [ "${lines[0]}" == "$file:2:foo.me" ]
   [ "${lines[1]}" == "$file:3:\"me\"" ]
@@ -69,10 +78,8 @@ load test_helper
 
 @test "Can scan from stdin using -" {
   create_secrets
-  echo "foo" | GIT_SECRETS_FILE=$TMP_SECRETS ./git-secrets.sh scan -
-  echo "me" | GIT_SECRETS_FILE=$TMP_SECRETS ./git-secrets.sh scan - \
-    && exit 1 \
-    || true
+  echo "foo" | ./git-secrets.sh scan -
+  echo "me" | ./git-secrets.sh scan - && exit 1 || true
 }
 
 @test "scan -h prints help" {

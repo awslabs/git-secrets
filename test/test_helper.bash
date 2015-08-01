@@ -10,6 +10,7 @@ create_secrets() {
   [ $1 -eq 1 ] && dest=$REPO_TMP_SECRETS
   echo "@todo" > "$dest"
   echo "forbidden|me" >> "$dest"
+  chmod 600 $dest
 }
 
 # Deletes the test fixture repository

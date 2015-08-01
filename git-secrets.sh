@@ -45,9 +45,11 @@ scan_usage() {
   echo "Usage: git secrets scan [<options>] <filename>"
   echo
   echo "Scans the given file (FILENAME) for a list of prohibited patterns"
-  echo "found in ~/.git-secrets + .git-secrets, or the GIT_SECRETS_FILE"
-  echo "environment variable. If any of these prohibited patterns are found"
-  echo "found in the file, then the match is printed and the script fails."
+  echo "found in .git-secrets and your global git secrets file (either the"
+  echo "value specified in the git config git-secrets.file or ~/.git-secrets"
+  echo "if config setting is not present). If any of these prohibited"
+  echo "patterns are found found in the file, then the match is printed and"
+  echo "the script fails."
   echo
   echo "Options:"
   echo "  -h  Displays this message."
@@ -109,36 +111,40 @@ merge_patterns_from_file() {
   done < "${filename}"
 }
 
-check_home_secrets_permissions() {
-  local -r home_location="$1"
-  if [ $(get_octal_permissions "${home_location}") -ne 600 ]; then
-    yellow "Warning: Unprotected home secrets file. ${home_location}" \
-           "should have 600 permission."
+check_secrets_permissions() {
+  local -r file="$1"
+  if [ $(get_octal_permissions "${file}") -ne 600 ]; then
+    yellow "Warning: Unprotected secrets file. ${file} should have" \
+           "600 permission."
   fi
 }
 
-# Loads ~/.git-secrets and .git-secrets patterns.
-# Pass $1 to disable utilizing the local secrets file when scanning.
-load_all_patterns() {
-  local -i found_secrets=0
-  local -i exclude_local_secrets="$1"
-  local -r local_patterns="$(git_repo_root)/.git-secrets"
-  local home_location="${HOME}/.git-secrets"
-
-  if [ -f "${home_location}" ]; then
+load_config_secrets() {
+  local secrets_file="$(git config git-secrets.file)"
+  local -r home_location="${HOME}/.git-secrets"
+  # If a secrets file is specified in your config, then it MUST exist.
+  if [ ! -z "${secrets_file}" ]; then
+    [ ! -f "${secrets_file}" ] && die "Secrets file not found: ${secrets_file}"
+    check_secrets_permissions "${secrets_file}"
+    merge_patterns_from_file "${secrets_file}"
+  elif [ -f "${home_location}" ]; then
+    # Assume the config setting was your home location if it wasn't set.
     check_home_secrets_permissions "${home_location}"
-    found_secrets=1
     merge_patterns_from_file "${home_location}"
   fi
+}
 
+# Loads your global secrets and your local secrets.
+# Pass $1 to disable utilizing the local secrets file when scanning.
+load_all_patterns() {
+  local -i exclude_local_secrets="$1"
+  local -r local_patterns="$(git_repo_root)/.git-secrets"
+  load_config_secrets
   if [ -f "${local_patterns}" ]; then
-    found_secrets=1
     if [ $exclude_local_secrets -ne 1 ]; then
       merge_patterns_from_file "${local_patterns}"
     fi
   fi
-
-  [ $found_secrets -eq 0 ] && die "No secrets file can be found"
 }
 
 #######################################################################
@@ -178,14 +184,7 @@ scan() {
   PATTERNS=""
   # Validate the filename only if it is not stdin ("-")
   [ "${filename}" != "-" ] && validate_filename "${filename}"
-  # When GIT_SECRETS_FILE is passed, we just use it and it only.
-  if [ ! -z "${GIT_SECRETS_FILE}" ]; then
-    [ ! -f "${GIT_SECRETS_FILE}" ] \
-      && die "Secrets file not found: ${GIT_SECRETS_FILE}"
-    merge_patterns_from_file "${GIT_SECRETS_FILE}"
-  else
-    load_all_patterns $exclude_local_secrets
-  fi
+  load_all_patterns $exclude_local_secrets
   negative_grep "${PATTERNS}" "${filename}"
 }
 
