@@ -2,14 +2,6 @@
 
 load test_helper
 
-setup() {
-  git config git-secrets.file "${TMP_SECRETS}"
-}
-
-teardown() {
-  git config --unset git-secrets.file || true
-}
-
 @test "Rejects commits with prohibited patterns in changeset" {
   ./install.sh
   setup_bad_repo

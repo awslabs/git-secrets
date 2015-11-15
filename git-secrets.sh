@@ -45,11 +45,9 @@ scan_usage() {
   echo "Usage: git secrets scan [<options>] <filename>"
   echo
   echo "Scans the given file (FILENAME) for a list of prohibited patterns"
-  echo "found in .git-secrets and your global git secrets file (either the"
-  echo "value specified in the git config git-secrets.file or ~/.git-secrets"
-  echo "if config setting is not present). If any of these prohibited"
-  echo "patterns are found found in the file, then the match is printed and"
-  echo "the script fails."
+  echo "found by calling git config --get-all secrets.pattern. If any of"
+  echo "these prohibited patterns are found found in the file, then the match"
+  echo "is printed and the script fails."
   echo
   echo "Options:"
   echo "  -h  Displays this message."
@@ -95,79 +93,41 @@ prohibited_warning() {
 }
 
 #######################################################################
-# Loading and resolving prohibited patterns
+# Helper functions
 #######################################################################
+
+load_secret_patterns() {
+  PATTERNS="$(git config --get-all secrets.pattern)"
+  # Warn if no patterns are configured.
+  if [ -z "$PATTERNS" ]; then
+    echo
+    yellow "No prohibited patterns have been defined"
+    echo "========================================"
+    echo
+    echo "You can add prohibited patterns by editing your .git/config file"
+    echo "or by using the following command for each prohibited pattern you"
+    echo -e "wish to add:\n"
+    echo -e "$ git config --add secrets.pattern <regex-pattern>\n"
+    echo "You can list all of the configured prohibited patterns by running"
+    echo -e "the following command:\n"
+    echo "$ git config --get-all secrets.pattern"
+    echo
+  fi
+}
 
 git_repo_root() {
   git status > /dev/null 2>&1 && git rev-parse --show-toplevel
 }
 
-merge_patterns_from_file() {
-  local filename="$1"
-  while IFS='' read -r line || [[ -n $line ]]; do
-    [ -z "${PATTERNS}" ] \
-      && PATTERNS=$line \
-      || PATTERNS+="|${line}"
-  done < "${filename}"
-}
-
-check_secrets_permissions() {
-  local -r file="$1"
-  if [ $(get_octal_permissions "${file}") -ne 600 ]; then
-    yellow "Warning: Unprotected secrets file. ${file} should have" \
-           "600 permission."
-  fi
-}
-
-load_config_secrets() {
-  local secrets_file="$(git config git-secrets.file)"
-  local -r home_location="${HOME}/.git-secrets"
-  # If a secrets file is specified in your config, then it MUST exist.
-  if [ ! -z "${secrets_file}" ]; then
-    [ ! -f "${secrets_file}" ] && die "Secrets file not found: ${secrets_file}"
-    check_secrets_permissions "${secrets_file}"
-    merge_patterns_from_file "${secrets_file}"
-  elif [ -f "${home_location}" ]; then
-    # Assume the config setting was your home location if it wasn't set.
-    check_home_secrets_permissions "${home_location}"
-    merge_patterns_from_file "${home_location}"
-  fi
-}
-
-# Loads your global secrets and your local secrets.
-# Pass $1 to disable utilizing the local secrets file when scanning.
-load_all_patterns() {
-  local -i exclude_local_secrets="$1"
-  local -r local_patterns="$(git_repo_root)/.git-secrets"
-  load_config_secrets
-  if [ -f "${local_patterns}" ]; then
-    if [ $exclude_local_secrets -ne 1 ]; then
-      merge_patterns_from_file "${local_patterns}"
-    fi
-  fi
-}
-
-#######################################################################
-# Scanning files
-#######################################################################
-
-get_octal_permissions() {
-  local -r file="$1"
-  # Account for OS X and BSD
-  stat -c '%a' "${file}" > /dev/null 2>&1 || stat -f '%A' "${file}"
-}
-
 negative_grep() {
   local -r pattern="$1"
   local -r filename="$2"
-  # ggrep is often used for extended greps to not overwrite system grep
-  if [ -x "$(which ggrep)" ] ; then
-    GREP_OPTIONS='' ggrep -nw -H -P -e "${pattern}" "${filename}" \
-      && return 1 || return 0
-  else
-    grep -H -n -w -E -e "${pattern}" "${filename}" \
-      && return 1 || return 0
-  fi
+  local grep_cmd=$(git config --get secrets.grep)
+  # Ensure the grep command is valid and executable.
+  grep_cmd=$(which "${grep_cmd:-egrep}")
+  [ ! -x "$grep_cmd" ] && die "Invalid secrets.grep command: ${grep_cmd}"
+  GREP_OPTIONS='' $grep_cmd --colour -nw -H -e "${pattern}" "${filename}" \
+    && return 1 || return 0
 }
 
 validate_filename() {
@@ -176,21 +136,21 @@ validate_filename() {
   [ ! -f "${filename}" ] && die "File not found: ${filename}"
 }
 
-# Scans a file for prohibited patterns.
-scan() {
-  local -r filename="$1"
-  local -r exclude_local_secrets=$2
-  local -i return_code=0
-  PATTERNS=""
-  # Validate the filename only if it is not stdin ("-")
-  [ "${filename}" != "-" ] && validate_filename "${filename}"
-  load_all_patterns $exclude_local_secrets
-  negative_grep "${PATTERNS}" "${filename}"
-}
-
 #######################################################################
 # Git hook implementation functions
 #######################################################################
+
+# Scans a file for prohibited patterns.
+scan() {
+  local -r filename="$1"
+  local -i return_code=0
+  load_secret_patterns
+  # Validate the filename only if it is not stdin ("-")
+  [ "${filename}" != "-" ] && validate_filename "${filename}"
+  if [ ! -z "$PATTERNS" ]; then
+    negative_grep "${PATTERNS}" "${filename}"
+  fi
+}
 
 # Scans a commit message for prohibited patterns.
 commit_msg_hook() {
@@ -198,16 +158,6 @@ commit_msg_hook() {
   git secrets scan "${commit_msg_file}" && exit 0
   prohibited_warning "Your commit message contains a prohibited pattern."
   exit 1
-}
-
-scan_single_pre_commit_file() {
-  local file=$1
-  # Exclude local .git-secrets patterns when scanning itself.
-  if [ "${file}" == ".git-secrets" ]; then
-    git secrets scan "${file}" 1
-  else
-    git secrets scan "${file}" 0
-  fi
 }
 
 # NOTE: This is based on git's pre-commit.sample script.
@@ -228,7 +178,7 @@ pre_commit_hook() {
   local file
 
   for file in $changes; do
-    scan_single_pre_commit_file "${file}" || found_match=1
+    git secrets scan "${file}" || found_match=1
   done
 
   if [ "$found_match" -eq 1 ]; then

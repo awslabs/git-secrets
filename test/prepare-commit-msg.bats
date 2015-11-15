@@ -6,7 +6,6 @@ load test_helper
   setup_good_repo
   ./install.sh
   ./git-secrets.sh install $TEST_REPO
-  create_secrets
   cd $TEST_REPO
   git commit -m 'OK'
   git checkout -b feature
@@ -28,7 +27,6 @@ load test_helper
   setup_good_repo
   ./install.sh
   ./git-secrets.sh install $TEST_REPO
-  create_secrets
   cd $TEST_REPO
   git commit -m 'OK'
   git checkout -b feature

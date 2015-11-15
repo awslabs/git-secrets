@@ -1,21 +1,14 @@
 #!/usr/bin/env bash
 #
-# Installs the `git secrets` command.
-# This script will automatically configure a .git-secrets file in your
-# $HOME directory and set the file to 600 permissions. A global git
-# configuration setting is then set to ensure that all projects use this global
-# configuration file.
-#
+# Installs the `git secrets` command and associated git commands.
 # You can pass the path to the directory to install the script in argument 1.
-#
 # If no directory is passed, then the script will install the git subcommand to
 # /usr/local/bin (if available) or as a last resort, git --exec-path.
 
-pass() { echo " $(tput setaf 2)✓$(tput sgr 0) $1"; }
-fail() { echo " $(tput setaf 1)✗$(tput sgr 0)" $1; exit 1; }
-warn() { echo " $(tput setaf 3)-$(tput sgr 0)" $1; }
+INSTALL_DIR="$1"
 
-usage() {
+# Show help if "-h" is provided.
+if [ "$INSTALL_DIR" == "-h" ]; then
   echo ""
   echo "Usage: ./install.sh [<path>]"
   echo
@@ -31,12 +24,13 @@ usage() {
   echo "  -h  Displays this message."
   echo
   exit 0
-}
+fi
 
-[ "$1" == "-h" ] && usage
+pass() { echo -e " $(tput setaf 2)✓$(tput sgr 0) $1"; }
+warn() { echo -e " $(tput setaf 3)-$(tput sgr 0)" $1; }
+fail() { echo -e " $(tput setaf 1)✗$(tput sgr 0)" $1 && exit 1; }
 
-INSTALL_DIR="${1}"
-
+# Installs git-secrets to an approriate path.
 install_secrets() {
   if [ ! -z "${INSTALL_DIR}" ]; then
     # The user may pass in a custom installation directory.
@@ -49,39 +43,37 @@ install_secrets() {
     INSTALL_DIR="$(git --exec-path)"
   fi
   path="${INSTALL_DIR}/git-secrets"
-  cp git-secrets.sh "${path}"
-  chmod +x "${path}"
+  cp git-secrets.sh "${path}" && chmod +x "${path}" \
+    && pass "Installed git-secrets command at ${INSTALL_DIR}/git-secrets" \
+    || fail "Could not install git-secrets at ${INSTALL_DIR}/git-secrets"
 }
 
-install_secrets \
-  && pass "Installed git-secrets command at ${INSTALL_DIR}/git-secrets" \
-  || fail "Could not install git-secrets at ${INSTALL_DIR}/git-secrets"
-
-[ -f "${HOME}/.git-secrets" ] \
-  && pass "Found global secrets file at ${HOME}/.git-secrets" \
-  || warn "No .git-secrets file was found at ${HOME}/.git-secrets"
-
-git secrets -v > /dev/null 2>&1 \
-  && pass "git-secrets has been installed successfully" \
-  || fail "git-secrets did not install correctly"
-
-# Install a default secrets file if one is not set.
-global="$(git config --get git-secrets.file)"
-
-if [ ! -z "${global}" ]; then
-  pass "Found a global git-secrets configuration setting: ${global}"
-elif [ ! -z "${HOME}" ]; then
-  global_file="${HOME}/.git-secrets"
-  if [ ! -f "${global_file}" ]; then
-    touch "${global_file}"
-    chmod 600 "${global_file}"
-    pass "Created a global git-secrets file at ${global_file}"
+# Determine the most appropriate grep for the system. gegrep is often used
+# for extended greps to not overwrite system grep (e.g., homebrew).
+set_grep_config() {
+  local grep_command="$(git config --get secrets.grep)"
+  if [ ! -z "${grep_command}" ]; then
+    pass "grep command already configured: ${grep_command}"
+    return
+  elif [ -x "$(which gegrep 2>&1)" ]; then
+    grep_command='gegrep'
+  elif [ -x "$(which egrep 2>&1)" ]; then
+    grep_command='egrep'
   else
-    pass "Found an existing global git-secrets file at ${global_file}"
+    fail "Could not find grep on your system"
   fi
-  git config --global git-secrets.file "${global_file}" \
-    && pass "Configured a global git-secrets file at ${global_file}" \
-    || warn "Could not configutr global git-secrets file for ${global_file}"
-fi
+  git config --global --add secrets.grep "${grep_command}"
+  pass "Configured grep command: ${grep_command}"
+}
 
-echo -e "\nSUCCESS: successfully install git-secrets\n"
+success_check() {
+  git secrets -v > /dev/null 2>&1 \
+    && pass "git-secrets has been installed successfully\n" \
+    || fail "git-secrets did not install correctly\n"
+}
+
+echo -e "Installing git-secrets...\n"
+
+install_secrets
+set_grep_config
+success_check
