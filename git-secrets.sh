@@ -1,26 +1,17 @@
 #!/usr/bin/env bash
-#
-# Checks if a given file contains any of the prohibited secret patterns.
-
 declare -r VERSION="0.0.1"
 declare PATTERNS=""
+[[ -t 0 && -t 1 ]] && declare -r IS_ATTY=1 || declare -r IS_ATTY=0
 
 #######################################################################
 # Help and error messages
 #######################################################################
 
 color() {
-  if [ -t 1 ]; then
-    echo "$(tput setaf $1)${@:2}$(tput sgr 0)"
-  else
-    echo $2
-  fi
+  [ $IS_ATTY -eq 1 ] && echo "$(tput setaf $1)${@:2}$(tput sgr 0)" || echo $2
 }
 
-green() { color 2 "$@"; }
-yellow() { color 3 "$@"; }
-red() { color 1 "$@"; }
-die() { red "$@" >&2; exit 1; }
+die() { color 1 "$@" >&2; exit 1; }
 
 version() {
   echo "git-secrets ${VERSION}"
@@ -87,9 +78,8 @@ prohibited_warning() {
   echo
   echo "$1"
   echo
-  echo "You can view the prohibited pattern matches in the"
-  echo "above output. Please remove these patterns, rebase,"
-  echo "and resubmit the patch."
+  echo "You can view the prohibited pattern matches in the above output."
+  echo "Please remove these patterns, rebase, and resubmit the patch."
 }
 
 #######################################################################
@@ -100,18 +90,19 @@ load_secret_patterns() {
   PATTERNS="$(git config --get-all secrets.pattern)"
   # Warn if no patterns are configured.
   if [ -z "$PATTERNS" ]; then
-    echo
-    yellow "No prohibited patterns have been defined"
-    echo "========================================"
-    echo
-    echo "You can add prohibited patterns by editing your .git/config file"
-    echo "or by using the following command for each prohibited pattern you"
-    echo -e "wish to add:\n"
-    echo -e "$ git config --add secrets.pattern <regex-pattern>\n"
-    echo "You can list all of the configured prohibited patterns by running"
-    echo -e "the following command:\n"
-    echo "$ git config --get-all secrets.pattern"
-    echo
+    color 3 "No prohibited patterns have been defined" 1>&2
+    cat << EOF 1>&2
+========================================
+You can add prohibited patterns by editing your .git/config file or by using
+the following command for each prohibited pattern you wish to add:
+
+    git config --add secrets.pattern <regex-pattern>
+
+You can list all of the configured prohibited patterns by running the
+following command:
+
+    git config --get-all secrets.pattern
+EOF
   fi
 }
 
@@ -119,36 +110,55 @@ git_repo_root() {
   git status > /dev/null 2>&1 && git rev-parse --show-toplevel
 }
 
-negative_grep() {
-  local -r pattern="$1"
-  local -r filename="$2"
-  local grep_cmd=$(git config --get secrets.grep)
+check_pattern() {
+  local pattern="$1" filename="$2" grep_cmd=$(git config --get secrets.grep)
   # Ensure the grep command is valid and executable.
   grep_cmd=$(which "${grep_cmd:-egrep}")
   [ ! -x "$grep_cmd" ] && die "Invalid secrets.grep command: ${grep_cmd}"
-  GREP_OPTIONS='' $grep_cmd --colour -nw -H -e "${pattern}" "${filename}" \
-    && return 1 || return 0
+  GREP_OPTIONS='' $grep_cmd --colour -nw -H -e "${pattern}" "${filename}"
 }
 
 validate_filename() {
-  local -r filename="$1"
-  [ -z "${filename}" ] && die "Empty or missing filename argument."
-  [ ! -f "${filename}" ] && die "File not found: ${filename}"
+  [ -z "$1" ] && die "Empty or missing filename argument."
+  [ ! -f "$1" ] && die "File not found: $1"
 }
 
 #######################################################################
 # Git hook implementation functions
 #######################################################################
 
+prompt_for_input() {
+  local pattern=$1 file=$2
+  local -r affirmative="Yes. This is a false positive, allow it and continue."
+  local -r negative="No. This is a secret. Do not commit it -- fail."
+  echo "^^^ Matched prohibited pattern in ${file}: ${pattern}"
+  echo "Do you wish to commit this anyway?"
+  select yn in "${negative}" "${affirmative}"; do
+    case $yn in
+      [nN]* ) die "Found a secret in ${file}";;
+      [Y]* ) break;;
+    esac
+  done
+}
+
 # Scans a file for prohibited patterns.
 scan() {
   local -r filename="$1"
-  local -i return_code=0
   load_secret_patterns
   # Validate the filename only if it is not stdin ("-")
   [ "${filename}" != "-" ] && validate_filename "${filename}"
   if [ ! -z "$PATTERNS" ]; then
-    negative_grep "${PATTERNS}" "${filename}"
+    if [ $IS_ATTY -ne 1 ]; then
+      # Check will all patterns at once
+      check_pattern "$PATTERNS" "${filename}" && die "Found secrets"
+    else
+      # Check each pattern individually for user prompts.
+      for pattern in $PATTERNS; do
+        if check_pattern "${pattern}" "${filename}"; then
+          prompt_for_input "${pattern}" "${filename}"
+        fi
+      done
+    fi
   fi
 }
 
@@ -161,21 +171,16 @@ commit_msg_hook() {
 }
 
 # NOTE: This is based on git's pre-commit.sample script.
+# Allows the hook to reject commits for brand new repos.
 determine_rev_to_diff() {
-  if [ git rev-parse --verify HEAD >/dev/null 2>&1 ]; then
-    echo "HEAD"
-  else
-    # Allows the hook to reject commits for brand new repos.
-    echo "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-  fi
+  [ git rev-parse --verify HEAD >/dev/null 2>&1 ] \
+    && "HEAD" || echo "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 }
 
 # Scans a commit for prohibited patterns.
 pre_commit_hook() {
-  local -r against=$(determine_rev_to_diff)
-  local -i found_match=0
+  local file found_match=0 against=$(determine_rev_to_diff)
   local changes=$(git diff-index --name-status --cached $against -- | cut -c3-)
-  local file
 
   for file in $changes; do
     git secrets scan "${file}" || found_match=1
@@ -209,64 +214,57 @@ prepare_commit_msg_hook() {
 # Determines the approriate path for a hook to be installed
 # This function respects any found $hook.d directories.
 determine_hook_path() {
-  local -r hook="$1"
-  local -r path="$2"
+  local -r hook="$1" path="$2"
   local dest="${path}/.git/hooks/${hook}"
   local -r debian_dir="${path}/.git/hooks/${hook}.d"
   [ -d "${debian_dir}" ] && dest="${debian_dir}/git-secrets"
-  [ -f "$dest" ] && yellow "Overwriting $dest" 1>&2
+  [ -f "$dest" ] && color 3 "Overwriting $dest" 1>&2
   echo "$dest"
 }
 
 install_hook() {
-  local -r dest="$1"
-  local -r name="$2"
-  local -r cmd="$3"
+  local -r dest="$1" name="$2" cmd="$3"
   [ -z "${dest}" ] && die "Expects the path to a file"
   [ -d "$(dirname ${dest})" ] || die "Directory not found: ${dest}"
   echo "#!/usr/bin/env bash" > "${dest}"
   echo "git secrets ${cmd} \"\$@\"" >> "${dest}"
   chmod +x "${dest}"
-  green "Installed ${name} hook to ${dest}"
+  color 2 "Installed ${name} hook to ${dest}"
 }
 
 install_hooks() {
-  local -r git_repo="$1"
-  local dest
+  local dest git_repo="$1"
   dest=$(determine_hook_path "commit-msg" "${git_repo}")
-  install_hook "${dest}" "commit-msg" "_commit_msg_hook"
+  install_hook "${dest}" "commit-msg" "commit_msg_hook"
   dest=$(determine_hook_path "pre-commit" "${git_repo}")
-  install_hook "${dest}" "pre-commit" "_pre_commit_hook"
+  install_hook "${dest}" "pre-commit" "pre_commit_hook"
   dest=$(determine_hook_path "prepare-commit-msg" "${git_repo}")
-  install_hook "${dest}" "prepare-commit-msg" "_prepare_commit_msg_hook"
+  install_hook "${dest}" "prepare-commit-msg" "prepare_commit_msg_hook"
 }
 
 #######################################################################
 # Dispatch to the appropriate functions
 #######################################################################
 
-# Show help if no options were provided.
-[ $# -eq 0 ] && set -- -h
-
 main() {
-  case "$1" in
-    -h) usage ;;
-    -v) version && exit 0 ;;
-    _commit_msg_hook) commit_msg_hook "$2" ;;
-    _pre_commit_hook) pre_commit_hook ;;
-    _prepare_commit_msg_hook) prepare_commit_msg_hook "$2" "$3" "$4" ;;
+  case "$cmd" in
+    -h|--help|'') usage ;;
+    -v|--version) version && exit 0 ;;
+    commit_msg_hook|pre_commit_hook|prepare_commit_msg_hook) $cmd "$@" ;;
     scan)
-      [ "$2" == "-h" ] && scan_usage
-      scan "$2" "$3"
+      [ "$1" == "-h" ] && scan_usage
+      scan "$@"
       ;;
     install)
-      local git_repo_dir="$2"
-      [ "${git_repo_dir}" == "-h" ] && install_usage
+      [ "$1" == "-h" ] && install_usage
+      local git_repo_dir="$1"
       [ -z "${git_repo_dir}" ] && git_repo_dir=$(git_repo_root)
       install_hooks "$git_repo_dir"
       ;;
-    *) die "Unknown command '$1'" ;;
+    *) die "Unknown command: $cmd" ;;
   esac
 }
 
+cmd=$1
+shift
 main "$@"
