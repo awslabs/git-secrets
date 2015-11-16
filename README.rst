@@ -125,10 +125,9 @@ patterns:
 
 You may find that it's easier to simply edit your git config file directly
 rather than executing multiple ``git config --add`` commands from the command
-line. The git configuration file is typically found in a git repository at
-``.git/config``. Simply add a new ini section called "secrets" and place each
-prohibited regular expression pattern on a new line using
-``pattern=<regex>``. For example::
+line. You can edit a project's config file using ``git config -e``. Simply add
+a new ini section called "secrets" and place each prohibited regular expression
+pattern on a new line using ``pattern=<regex>``. For example::
 
     [secrets]
         pattern = foo
