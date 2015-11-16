@@ -43,7 +43,7 @@ install_secrets() {
     INSTALL_DIR="$(git --exec-path)"
   fi
   path="${INSTALL_DIR}/git-secrets"
-  cp git-secrets.sh "${path}" && chmod +x "${path}" \
+  cp git-secrets "${path}" && chmod +x "${path}" \
     && pass "Installed git-secrets command at ${INSTALL_DIR}/git-secrets" \
     || fail "Could not install git-secrets at ${INSTALL_DIR}/git-secrets"
 }
@@ -67,7 +67,7 @@ set_grep_config() {
 }
 
 success_check() {
-  git secrets -v > /dev/null 2>&1 \
+  git secrets -h > /dev/null 2>&1 \
     && pass "git-secrets has been installed successfully\n" \
     || fail "git-secrets did not install correctly\n"
 }

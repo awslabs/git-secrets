@@ -85,7 +85,7 @@ report if any of the prohibited matches are found in the file.
 
 ::
 
-    $ git secrets scan path/to/file
+    $ git secrets scan -f path/to/file
     $ echo $?
     > 0
 
