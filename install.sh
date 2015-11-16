@@ -9,8 +9,7 @@ INSTALL_DIR="$1"
 
 # Show help if "-h" is provided.
 if [ "$INSTALL_DIR" == "-h" ]; then
-  echo ""
-  echo "Usage: ./install.sh [<path>]"
+  echo "usage: install.sh [<path>]"
   echo
   echo "Installs the git secrets command and sets up your environment."
   echo

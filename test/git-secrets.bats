@@ -21,12 +21,11 @@ load test_helper
   echo "$output" | grep "File not found: /path/to/not/there"
 }
 
-@test "Warns if secrets are not present" {
+@test "Does not require secres" {
   setup_repo && cd $TEST_REPO
   git config --unset-all secrets.pattern || true
   repo_run git-secrets scan -f $BATS_TEST_FILENAME
   [ $status -eq 0 ]
-  echo "$output" | grep "No prohibited patterns have been defined"
 }
 
 @test "No prohibited matches exits 0" {
@@ -41,7 +40,6 @@ load test_helper
   file="$TEST_REPO/test.txt"
   echo '@todo stuff' > $file
   echo 'this is forbidden right?' >> $file
-  git config --get-all secrets.pattern > /tmp/patterns
   repo_run git-secrets scan -f $file
   [ $status -eq 1 ]
   [ "${lines[0]}" == "$file:1:@todo stuff" ]
@@ -64,8 +62,8 @@ load test_helper
 
 @test "Can scan from stdin using -" {
   setup_repo && cd $TEST_REPO
-  #echo "foo" | "${BATS_TEST_DIRNAME}/../git-secrets" scan -f -
-  #echo "me" | "${BATS_TEST_DIRNAME}/../git-secrets" scan -f - && exit 1 || true
+  echo "foo" | "${BATS_TEST_DIRNAME}/../git-secrets" scan -f -
+  echo "me" | "${BATS_TEST_DIRNAME}/../git-secrets" scan -f - && exit 1 || true
 }
 
 @test "scan -h prints help" {
@@ -79,7 +77,7 @@ load test_helper
 }
 
 @test "installs hooks for repo" {
-  ./install.sh
+  repo_run install.sh
   setup_bad_repo
   repo_run git-secrets install -d $TEST_REPO
   [ -f $TEST_REPO/.git/hooks/pre-commit ]
@@ -89,7 +87,7 @@ load test_helper
 }
 
 @test "installs hooks for repo with Debian style directories" {
-  ./install.sh
+  repo_run install.sh
   setup_bad_repo
   mkdir $TEST_REPO/.git/hooks/pre-commit.d
   mkdir $TEST_REPO/.git/hooks/prepare-commit-msg.d
