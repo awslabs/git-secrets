@@ -37,6 +37,7 @@ set_grep_command() {
   pass "Configured grep command: $1"
 }
 
+# Add a pattern if it is not empty
 add_pattern() {
   if [ "$1" != '' ]; then
     [ "$2" != '' ] && pass "Added prohibited pattern: $2"
@@ -44,6 +45,7 @@ add_pattern() {
   fi
 }
 
+# Prompt the user for a y/n question
 prompt() {
   [ "$INSTALL_COMMON" -eq 1 ] && return 0
   [ "$NON_INTERACTIVE" -eq 1 ] && return 1
@@ -57,8 +59,14 @@ prompt() {
   esac
 }
 
+# Prompt the user to add a secret with context
 pattern_prompt() {
   prompt "Add '$1' ($2) to your git-secrets patterns?"
+}
+
+# Quote a regular expression
+re_quote() {
+  sed 's/[]\.|$(){}?+*^]/\\&/g' <<< "$*"
 }
 
 while [ $# -gt 0 ]; do
@@ -118,6 +126,7 @@ git secrets -h > /dev/null 2>&1 \
 git_ini_checks=('user.email' 'github.user' 'github.token')
 for check in "${git_ini_checks[@]}"; do
   value=$(git config --get "${check}")
+  value=$(re_quote "${value}")
   if [ "$value" != '' ] \
         && pattern_prompt "${value}" "git config --get ${check}"; then
     add_pattern "${value}" "${check}"
@@ -147,13 +156,15 @@ if [ -x "$(which aws 2>&1)" ] \
       && [ -f ~/.aws/credentials ] \
       && prompt "Import credentials from ~/.aws/credentials?"; then
   profiles=$(egrep -oh '^\[(.+)\]$' ~/.aws/credentials)
+  paths=('aws_access_key_id' 'aws_secret_access_key')
   for profile in ${profiles[@]}; do
     # Strip the "[" and "]" characters.
     profile="${profile:1:${#profile}-2}"
-    check="${profile}.aws_access_key_id"
-    add_pattern $(aws configure get "${check}") "${check}"
-    check="${profile}.aws_secret_access_key"
-    add_pattern $(aws configure get "${check}") "${check}"
+    for path in "${paths[@]}"; do
+      check="${profile}.${path}"
+      value="$(aws configure get "${check}")"
+      add_pattern "$(re_quote $value)" "${check}"
+    done
   done
 fi
 
