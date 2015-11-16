@@ -3,6 +3,6 @@ help:
 	@echo "  test     to perform unit tests."
 
 test:
-	vendor/bats/bin/bats test/
+	test/bats/bin/bats test/
 
 .PHONY: help test
