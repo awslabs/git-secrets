@@ -21,13 +21,14 @@ First clone the repository. Then run the following command::
 
 The ``install.sh`` script will perform the following actions:
 
-1. Install the git-secrets command to your PATH.
+1. Install the ``git-secrets`` command to your PATH.
 2. Configure the appropriate command to use for grep.
+3. Ask if you want to install a number of pre-configured prohibited patterns.
 
 .. warning::
 
-    You MUST install the git hooks for every repo that you wish to use with
-    git-secrets.
+    You're not done yet! You MUST install the git hooks for every repo that
+    you wish to use with ``git secrets install``.
 
 
 Installing git hooks for a repository
@@ -38,16 +39,16 @@ hooks to a repository to ensure that prohibited words or patterns never make it
 into the repository. This can be done by running the ``git secrets install``
 command while inside of a git repository.
 
-::
+.. code-block:: bash
 
     cd /path/to/git/repo
     git secrets install
 
-You can also provide the path to the repository as a positional argument.
+You can also provide the path to the repository using the ``--dir`` option.
 
-::
+.. code-block:: bash
 
-    git secrets install /path/to/git/repo
+    git secrets install --dir /path/to/git/repo
 
 ``git-secrets`` installs several hooks:
 
@@ -73,6 +74,14 @@ directory, overwriting any previously configured hook. In the event that the
 hooks are overwritten, a warning will be written to stdout.
 
 
+Skipping validation
+^^^^^^^^^^^^^^^^^^^
+
+Use the ``--no-verify`` option in the event of a false-positive match in a
+commit, merge, or commit message. This will skip the execution of the
+git hook and allow you to make the commit or merge.
+
+
 Scanning files
 --------------
 
@@ -83,7 +92,7 @@ be useful for testing your configured patterns).
 The ``git-secrets scan`` command accepts the path to a file to check and will
 report if any of the prohibited matches are found in the file.
 
-::
+.. code-block:: bash
 
     $ git secrets scan -f path/to/file
     $ echo $?
@@ -100,6 +109,13 @@ Defining prohibited patterns
 ``egrep`` compatible Regular expressions are used to determine if a commit or
 commit message contains any prohibited patterns. These regular expressions are
 defined using the ``git config`` command.
+
+.. note::
+
+    You can run the ``install.sh`` script at any time to add a number of
+    pre-configured patterns to your list of prohibited regular expressions,
+    including AWS access keys and known AWS credentials stored in
+    ``~/.aws/credentials``.
 
 You can add prohibited regular expression patterns to your git config by
 running the following command:
@@ -123,24 +139,38 @@ patterns:
 
     git config --global --add secrets.pattern 'my regex pattern'
 
+
+Manually editing git config
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 You may find that it's easier to simply edit your git config file directly
 rather than executing multiple ``git config --add`` commands from the command
-line. You can edit a project's config file using ``git config -e``. Simply add
-a new ini section called "secrets" and place each prohibited regular expression
-pattern on a new line using ``pattern=<regex>``. For example::
+line. You can edit a project's config file using the following command:
 
+.. code-block:: bash
+
+    git config -e
+
+Simply add a new ini section called "secrets" and place each prohibited
+regular expression line using ``pattern=<regex>``. For example, your git
+config might look something like this::
+
+    [core]
+        repositoryformatversion = 0
+        filemode = true
+        bare = false
+        logallrefupdates = true
+        ignorecase = true
+        precomposeunicode = true
+    [remote "origin"]
+        url = git@github.com:foo/bar
+        fetch = +refs/heads/*:refs/remotes/origin/*
     [secrets]
-        pattern = foo
-        pattern = bar
-        pattern = baz
+        pattern = (?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])
+        pattern = (?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])
 
-
-Skipping validation
--------------------
-
-Use the ``--no-verify`` option in the event of a false-positive match in a
-commit, merge, or commit message. This will skip the execution of the
-git hook and allow you to make the commit or merge.
+More information on git configuration can be found in the
+`git documentation <https://git-scm.com/docs/git-config>`_.
 
 
 Testing

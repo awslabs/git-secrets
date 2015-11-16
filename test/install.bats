@@ -10,6 +10,5 @@ load test_helper
 
 @test "Install -h" {
   run ./install.sh -h
-  [ $status -eq 0 ]
   [ $(expr "${lines[0]}" : "usage: install.sh") -ne 0 ]
 }

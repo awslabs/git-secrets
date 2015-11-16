@@ -141,7 +141,7 @@ for pattern in "${common_patterns[@]}"; do
   fi
 done
 
-# 6) Import passwords from you ~/.aws/credentials file
+# 6) Import passwords from ~/.aws/credentials file
 ########################################################
 if [ -x "$(which aws 2>&1)" ] \
       && [ -f ~/.aws/credentials ] \
