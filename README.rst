@@ -144,15 +144,6 @@ commit, merge, or commit message. This will skip the execution of the
 git hook and allow you to make the commit or merge.
 
 
-Preventing user prompts
------------------------
-
-You can prevent the hooks from ever prompting for input by running the
-following command::
-
-    git config --add secrets.non-interactive 1
-
-
 Testing
 -------
 
