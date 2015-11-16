@@ -5,7 +5,7 @@ load test_helper
 @test "Rejects merges with prohibited patterns in history" {
   setup_good_repo
   ./install.sh
-  ./git-secrets.sh install $TEST_REPO
+  ./git-secrets install -d $TEST_REPO
   cd $TEST_REPO
   git commit -m 'OK'
   git checkout -b feature
@@ -26,7 +26,7 @@ load test_helper
 @test "Allows commits that do not match prohibited patterns" {
   setup_good_repo
   ./install.sh
-  ./git-secrets.sh install $TEST_REPO
+  ./git-secrets install -d $TEST_REPO
   cd $TEST_REPO
   git commit -m 'OK'
   git checkout -b feature
