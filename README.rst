@@ -22,8 +22,10 @@ First clone the repository. Then run the following command::
 The ``install.sh`` script will perform the following actions:
 
 1. Install the ``git-secrets`` command to your PATH.
-2. Configure the appropriate command to use for grep.
-3. Ask if you want to install a number of pre-configured prohibited patterns.
+2. Ask if you want to install a number of pre-configured prohibited patterns.
+3. Ask if you want to import known credentials from ``~/.aws/credentials`` as
+   prohibited.
+4. Ensure that it was installed correctly.
 
 .. warning::
 
@@ -106,9 +108,19 @@ regular expression patterns defined by the result of
 Defining prohibited patterns
 ----------------------------
 
-``egrep`` compatible Regular expressions are used to determine if a commit or
+egrep compatible regular expressions are used to determine if a commit or
 commit message contains any prohibited patterns. These regular expressions are
 defined using the ``git config`` command.
+
+It is important to note that different systems use different versions of egrep.
+For example, when running on OS X, you will use a different version of egrep
+than when running on something like Ubuntu (BSD vs GNU). You can customize
+which egrep is used by ``git-secrets`` if these slight differences change the
+behavior of your regular expressions. The ``secrets.grep`` git configuration
+setting specifies the grep command to use. You must include any arguments
+leading up to but not including the patterns and filename when configuring a
+custom grep setting (for example, ``gegrep -nwH`` could be used to utilize
+the egrep installed by running ``brew install grep``).
 
 .. note::
 
@@ -166,8 +178,11 @@ config might look something like this::
         url = git@github.com:foo/bar
         fetch = +refs/heads/*:refs/remotes/origin/*
     [secrets]
-        pattern = (?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])
-        pattern = (?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])
+        pattern = username=.+
+        pattern = password=.+
+        pattern = [A-Z0-9]{20}
+        pattern = (\"|')?(AWS_|aws_)?(SECRET|secret)(_ACCESS|_access)?_(KEY|key)(\"|')?\\s*(=|:|=>)\\s*(\"|')?[A-Za-z0-9/\\+=]{40}(\"|')?
+        pattern = (\"|')?(AWS_|aws_)?(ACCOUNT|account)(_ID|_id)?(\"|')?\\s*(=|:|=>)\\s*(\"|')?[0-9]{4}\\-?[0-9]{4}\\-?[0-9]{4}(\"|')?
 
 More information on git configuration can be found in the
 `git documentation <https://git-scm.com/docs/git-config>`_.

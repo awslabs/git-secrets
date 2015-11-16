@@ -61,13 +61,16 @@ prompt() {
 
 # Prompt the user to add a secret with context
 pattern_prompt() {
-  prompt "Add '$1' ($2) to your git-secrets patterns?"
+  prompt "Add $2 to your git-secrets patterns? $1"
 }
 
 # Quote a regular expression
 re_quote() {
   sed 's/[]\.|$(){}?+*^]/\\&/g' <<< "$*"
 }
+
+# Parse the given options and arguments.
+########################################################
 
 while [ $# -gt 0 ]; do
   opt="$1"
@@ -102,26 +105,13 @@ cp git-secrets "${path}" && chmod +x "${path}" \
   && pass "Installed git-secrets command at ${INSTALL_DIR}/git-secrets" \
   || fail "Could not install git-secrets at ${INSTALL_DIR}/git-secrets"
 
-# 2) Determine the most appropriate grep for the system. gegrep is sometimes
-# used for extended greps to not overwrite system grep (e.g., homebrew).
-########################################################
-if [ ! -z "$(git config --get secrets.grep)" ]; then
-  pass "grep command already configured"
-elif [ -x "$(which gegrep 2>&1)" ]; then
-  set_grep_command 'gegrep'
-elif [ -x "$(which egrep 2>&1)" ]; then
-  set_grep_command 'egrep'
-else
-  fail "Could not find grep on your system"
-fi
-
-# 3) Call help to ensure it installed correctly
+# 2) Call help to ensure it installed correctly
 ########################################################
 git secrets -h > /dev/null 2>&1 \
   && pass "git-secrets has been installed successfully" \
   || fail "git-secrets did not install correctly"
 
-# 4) Import common patterns from git configs
+# 3) Import common patterns from git configs
 ########################################################
 git_ini_checks=('user.email' 'github.user' 'github.token')
 for check in "${git_ini_checks[@]}"; do
@@ -133,13 +123,19 @@ for check in "${git_ini_checks[@]}"; do
   fi
 done
 
-# 5) Add common patterns
+# 4) Add common patterns
 ########################################################
+# Reusable regex patterns
+aws="(AWS_|aws_)"
+quote="(\"|')"
+opt_quote="${quote}?"
+connect="\s*(=|:|=>)\s*"
 common_patterns=(
   'generic username: username=.+'
   'generic password: password=.+'
-  'AWS access key ID: (?<![A-Z0-9])[A-Z0-9]{20}(?![A-Z0-9])'
-  'AWS secret access key: (?<![A-Za-z0-9/+=])[A-Za-z0-9/+=]{40}(?![A-Za-z0-9/+=])'
+  'AWS Access Key ID: [A-Z0-9]{20}'
+  "AWS Secret Access Key: ${opt_quote}${aws}?(SECRET|secret)(_ACCESS|_access)?_(KEY|key)${opt_quote}${connect}${opt_quote}[A-Za-z0-9/\+=]{40}${opt_quote}"
+  "AWS account ID: ${opt_quote}${aws}?(ACCOUNT|account)(_ID|_id)?${opt_quote}${connect}${opt_quote}[0-9]{4}\-?[0-9]{4}\-?[0-9]{4}${opt_quote}"
 )
 
 for pattern in "${common_patterns[@]}"; do
@@ -150,17 +146,17 @@ for pattern in "${common_patterns[@]}"; do
   fi
 done
 
-# 6) Import passwords from ~/.aws/credentials file
+# 5) Import passwords from ~/.aws/credentials file
 ########################################################
 if [ -x "$(which aws 2>&1)" ] \
       && [ -f ~/.aws/credentials ] \
       && prompt "Import credentials from ~/.aws/credentials?"; then
-  profiles=$(egrep -oh '^\[(.+)\]$' ~/.aws/credentials)
+  profiles=$(GREP_OPTIONS='' egrep -e '^\[(.+)\]$' ~/.aws/credentials)
   paths=('aws_access_key_id' 'aws_secret_access_key')
   for profile in ${profiles[@]}; do
     # Strip the "[" and "]" characters.
     profile="${profile:1:${#profile}-2}"
-    for path in "${paths[@]}"; do
+    for path in ${paths[@]}; do
       check="${profile}.${path}"
       value="$(aws configure get "${check}")"
       add_pattern "$(re_quote $value)" "${check}"
@@ -168,7 +164,7 @@ if [ -x "$(which aws 2>&1)" ] \
   done
 fi
 
-# 7) Last step: ensure secrets can scan correctly
+# 6) Last step: ensure secrets can scan correctly
 ########################################################
 echo
 echo '' | git secrets scan -f - \
