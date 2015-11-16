@@ -102,7 +102,7 @@ report if any of the prohibited matches are found in the file.
 
 ``git secrets scan`` will first scan the given file for any of the prohibited
 regular expression patterns defined by the result of
-``git config --get-all secrets.patterns``.
+``git config --get-all secrets.patternss``.
 
 
 Defining prohibited patterns
@@ -110,17 +110,10 @@ Defining prohibited patterns
 
 egrep compatible regular expressions are used to determine if a commit or
 commit message contains any prohibited patterns. These regular expressions are
-defined using the ``git config`` command.
-
-It is important to note that different systems use different versions of egrep.
-For example, when running on OS X, you will use a different version of egrep
-than when running on something like Ubuntu (BSD vs GNU). You can customize
-which egrep is used by ``git-secrets`` if these slight differences change the
-behavior of your regular expressions. The ``secrets.grep`` git configuration
-setting specifies the grep command to use. You must include any arguments
-leading up to but not including the patterns and filename when configuring a
-custom grep setting (for example, ``gegrep -nwH`` could be used to utilize
-the egrep installed by running ``brew install grep``).
+defined using the ``git config`` command. It is important to note that
+different systems use different versions of egrep. For example, when running on
+OS X, you will use a different version of egrep than when running on something
+like Ubuntu (BSD vs GNU).
 
 .. note::
 
@@ -134,14 +127,14 @@ running the following command:
 
 .. code-block:: bash
 
-    git config --add secrets.pattern 'my regex pattern'
+    git config --add secrets.patterns 'my regex pattern'
 
 You can list the patterns that have been configured using the following
 command:
 
 .. code-block:: bash
 
-    git config --get-all secrets.pattern
+    git config --get-all secrets.patterns
 
 Patterns will by default be added to the local git repository only. Use the
 ``--global`` option to add the pattern to your global list of prohibited
@@ -149,7 +142,31 @@ patterns:
 
 .. code-block:: bash
 
-    git config --global --add secrets.pattern 'my regex pattern'
+    git config --global --add secrets.patterns 'my regex pattern'
+
+
+Ignoring false-positives
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes a regular expression match might match false positives. For example,
+git commit SHAs look a lot like AWS access keys. You can specify many different
+regular expression patters as false positives using the following command:
+
+.. code-block:: bash
+
+    git config --global --add secrets.allowed 'my regex pattern'
+
+First, git-secrets will extract all prohibited matches (only the match with
+no context). Then, if you've defined allowed regular expressions, git-secrets
+will check to see if all of the prohibited matches match your allowed regular
+expressions, and if so, there is no failure. If any of the prohibited matches
+are not matched by your allowed regular expressions, there is a failure.
+
+.. important::
+
+    Allowed regular expressions are matched against the exact match extracted
+    from a prohibited pattern match. They do not match against any other
+    context than an exact match from a prohibited pattern.
 
 
 Manually editing git config
@@ -178,11 +195,15 @@ config might look something like this::
         url = git@github.com:foo/bar
         fetch = +refs/heads/*:refs/remotes/origin/*
     [secrets]
-        pattern = username=.+
-        pattern = password=.+
-        pattern = [A-Z0-9]{20}
-        pattern = (\"|')?(AWS_|aws_)?(SECRET|secret)(_ACCESS|_access)?_(KEY|key)(\"|')?\\s*(=|:|=>)\\s*(\"|')?[A-Za-z0-9/\\+=]{40}(\"|')?
-        pattern = (\"|')?(AWS_|aws_)?(ACCOUNT|account)(_ID|_id)?(\"|')?\\s*(=|:|=>)\\s*(\"|')?[0-9]{4}\\-?[0-9]{4}\\-?[0-9]{4}(\"|')?
+        patterns = username=.+
+        patterns = password=.+
+        patterns = [A-Z0-9]{20}
+        patterns = (\"|')?(AWS_|aws_)?(SECRET|secret)(_ACCESS|_access)?_(KEY|key)(\"|')?\\s*(=|:|=>)\\s*(\"|')?[A-Za-z0-9/\\+=]{40}(\"|')?
+        patterns = (\"|')?(AWS_|aws_)?(ACCOUNT|account)(_ID|_id)?(\"|')?\\s*(=|:|=>)\\s*(\"|')?[0-9]{4}\\-?[0-9]{4}\\-?[0-9]{4}(\"|')?
+        ; AWS example key
+        allowed = AKIAIOSFODNN7EXAMPLE
+        ; AWS example secret key
+        allowed = wJalrXUtnFEMI/K7MDENG/bPxRfiCYzEXAMPLEKEY
 
 More information on git configuration can be found in the
 `git documentation <https://git-scm.com/docs/git-config>`_.

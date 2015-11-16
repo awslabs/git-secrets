@@ -21,9 +21,9 @@ load test_helper
   echo "$output" | grep "File not found: /path/to/not/there"
 }
 
-@test "Does not require secres" {
+@test "Does not require secrets" {
   setup_repo && cd $TEST_REPO
-  git config --unset-all secrets.pattern || true
+  git config --unset-all secrets.patterns || true
   repo_run git-secrets scan -f $BATS_TEST_FILENAME
   [ $status -eq 0 ]
 }
@@ -33,6 +33,18 @@ load test_helper
   echo 'it is ok' > "$BATS_TMPDIR/test.txt"
   repo_run git-secrets scan -f "$BATS_TMPDIR/test.txt"
   [ $status -eq 0 ]
+}
+
+@test "Excludes allowed patterns from failures" {
+  setup_repo && cd $TEST_REPO
+  git config --add secrets.patterns 'foo="baz{1,5}"'
+  git config --add secrets.allowed 'foo="bazzz"'
+  echo 'foo="bazzz" is ok because 3 "z"s' > "$BATS_TMPDIR/test.txt"
+  repo_run git-secrets scan -f "$BATS_TMPDIR/test.txt"
+  [ $status -eq 0 ]
+  echo 'This is NOT: ok foo="bazzzz"' > "$BATS_TMPDIR/test.txt"
+  repo_run git-secrets scan -f "$BATS_TMPDIR/test.txt"
+  [ $status -eq 1 ]
 }
 
 @test "Prohibited matches exits 1" {

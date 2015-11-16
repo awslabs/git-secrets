@@ -39,9 +39,19 @@ set_grep_command() {
 
 # Add a pattern if it is not empty
 add_pattern() {
-  if [ "$1" != '' ]; then
-    [ "$2" != '' ] && pass "Added prohibited pattern: $2"
-    git config --add secrets.pattern "$1"
+  local description="$1" value="$2"
+  if [ "$2" != '' ]; then
+    [ "$1" != '' ] && pass "Added prohibited pattern: $1"
+    git config --add secrets.patterns "$2"
+  fi
+}
+
+# Add an allowed pattern if it is not empty
+add_allowed() {
+  local description="$1" value="$2"
+  if [ "$2" != '' ]; then
+    [ "$1" != '' ] && pass "Added allowed pattern: $1"
+    git config --add secrets.allowed "$2"
   fi
 }
 
@@ -119,48 +129,36 @@ for check in "${git_ini_checks[@]}"; do
   value=$(re_quote "${value}")
   if [ "$value" != '' ] \
         && pattern_prompt "${value}" "git config --get ${check}"; then
-    add_pattern "${value}" "${check}"
+    add_pattern "${check}" "${value}"
   fi
 done
 
-# 4) Add common patterns
+# 4) Add common AWS patterns
 ########################################################
-# Reusable regex patterns
-aws="(AWS_|aws_)"
-quote="(\"|')"
-opt_quote="${quote}?"
-connect="\s*(=|:|=>)\s*"
-common_patterns=(
-  'generic username: username=.+'
-  'generic password: password=.+'
-  'AWS Access Key ID: [A-Z0-9]{20}'
-  "AWS Secret Access Key: ${opt_quote}${aws}?(SECRET|secret)(_ACCESS|_access)?_(KEY|key)${opt_quote}${connect}${opt_quote}[A-Za-z0-9/\+=]{40}${opt_quote}"
-  "AWS account ID: ${opt_quote}${aws}?(ACCOUNT|account)(_ID|_id)?${opt_quote}${connect}${opt_quote}[0-9]{4}\-?[0-9]{4}\-?[0-9]{4}${opt_quote}"
-)
-
-for pattern in "${common_patterns[@]}"; do
-  description="${pattern%: *}"
-  value="${pattern#*: }"
-  if pattern_prompt "${value}" "common patterns: ${description}"; then
-    add_pattern "${value}" "${description}"
-  fi
-done
+if prompt "Add common AWS patterns (keys, secrets, account ID, etc.)?"; then
+  # Reusable regex patterns
+  declare aws="(AWS|aws|Aws)?_?" quote="(\"|')" connect="\s*(:|=>|=)\s*"
+  declare opt_quote="${quote}?"
+  add_pattern 'Access Key ID' '[A-Z0-9]{20}'
+  add_pattern 'Secret Access Key' "${opt_quote}${aws}(SECRET|secret|Secret)?_?(ACCESS|access|Access)?_?(KEY|key|Key)${opt_quote}${connect}${opt_quote}[A-Za-z0-9/\+=]{40}${opt_quote}"
+  add_pattern 'AWS account ID' "${opt_quote}${aws}(ACCOUNT|account|Account)_?(ID|id|Id)?${opt_quote}${connect}${opt_quote}[0-9]{4}\-?[0-9]{4}\-?[0-9]{4}${opt_quote}"
+  # This is a common example key, mark it as allowed.
+  add_allowed 'Example AWS Access Key ID' 'AKIAIOSFODNN7EXAMPLE'
+  add_allowed 'Example Secret Access Key' "${opt_quote}${aws}(SECRET|secret|Secret)?_?(ACCESS|access|Access)?_?(KEY|key|Key)${opt_quote}${connect}${opt_quote}wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY${opt_quote}"
+fi
 
 # 5) Import passwords from ~/.aws/credentials file
 ########################################################
 if [ -x "$(which aws 2>&1)" ] \
       && [ -f ~/.aws/credentials ] \
       && prompt "Import credentials from ~/.aws/credentials?"; then
-  profiles=$(GREP_OPTIONS='' egrep -e '^\[(.+)\]$' ~/.aws/credentials)
-  paths=('aws_access_key_id' 'aws_secret_access_key')
+  profiles=$(GREP_OPTIONS='' grep -E '^\[(.+)\]$' ~/.aws/credentials)
   for profile in ${profiles[@]}; do
     # Strip the "[" and "]" characters.
     profile="${profile:1:${#profile}-2}"
-    for path in ${paths[@]}; do
-      check="${profile}.${path}"
-      value="$(aws configure get "${check}")"
-      add_pattern "$(re_quote $value)" "${check}"
-    done
+    check="${profile}.aws_secret_access_key"
+    value="$(aws configure get "${check}")"
+    add_pattern "AWS Secret Access Key (${profile})" "$(re_quote $value)"
   done
 fi
 

@@ -14,8 +14,8 @@ setup_repo() {
   mkdir -p $TEST_REPO
   cd $TEST_REPO
   git init
-  git config --local --add secrets.pattern '@todo'
-  git config --local --add secrets.pattern 'forbidden|me'
+  git config --local --add secrets.patterns '@todo'
+  git config --local --add secrets.patterns 'forbidden|me'
   cd -
 }
 
