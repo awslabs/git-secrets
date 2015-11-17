@@ -60,13 +60,15 @@ prompt() {
   [ "$INSTALL_COMMON" -eq 1 ] && return 0
   [ "$NON_INTERACTIVE" -eq 1 ] && return 1
   [ "$IS_ATTY" -eq 0 ] && return 1
-  echo -e "\n$1"
-  read -n 1 -p "[y/n] [enter for yes] " yn
-  echo
-  case $yn in
-    [Nn]* ) return 1 ;;
-    * ) return 0 ;;
-  esac
+  while true; do
+    echo -e "\n$1"
+    read -n 1 -p "[y/n] [enter for yes] " yn
+    [ -z "$yn" ] && yn='y'
+    case $yn in
+      [Nn]* ) echo; return 1 ;;
+      [Yy'']* ) echo; return 0 ;;
+    esac
+  done
 }
 
 # Prompt the user to add a secret with context
