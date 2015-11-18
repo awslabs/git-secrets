@@ -144,9 +144,8 @@ if prompt "Add common AWS patterns (keys, secrets, account ID, etc.)?"; then
   add_pattern 'Access Key ID' '[A-Z0-9]{20}'
   add_pattern 'Secret Access Key' "${opt_quote}${aws}(SECRET|secret|Secret)?_?(ACCESS|access|Access)?_?(KEY|key|Key)${opt_quote}${connect}${opt_quote}[A-Za-z0-9/\+=]{40}${opt_quote}"
   add_pattern 'AWS account ID' "${opt_quote}${aws}(ACCOUNT|account|Account)_?(ID|id|Id)?${opt_quote}${connect}${opt_quote}[0-9]{4}\-?[0-9]{4}\-?[0-9]{4}${opt_quote}"
-  # This is a common example key, mark it as allowed.
   add_allowed 'Example AWS Access Key ID' 'AKIAIOSFODNN7EXAMPLE'
-  add_allowed 'Example Secret Access Key' "${opt_quote}${aws}(SECRET|secret|Secret)?_?(ACCESS|access|Access)?_?(KEY|key|Key)${opt_quote}${connect}${opt_quote}wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY${opt_quote}"
+  add_allowed 'Example Secret Access Key' "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 fi
 
 # 5) Import passwords from ~/.aws/credentials file

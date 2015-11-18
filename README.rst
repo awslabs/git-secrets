@@ -148,25 +148,71 @@ patterns:
 Ignoring false-positives
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sometimes a regular expression match might match false positives. For example,
-git commit SHAs look a lot like AWS access keys. You can specify many different
-regular expression patters as false positives using the following command:
+Sometimes a regular expression might match false positives. For example, git
+commit SHAs look a lot like AWS access keys. You can specify many different
+regular expression patterns as false positives using the following command:
 
 .. code-block:: bash
 
     git config --global --add secrets.allowed 'my regex pattern'
 
-First, git-secrets will extract all prohibited matches (only the match with
-no context). Then, if you've defined allowed regular expressions, git-secrets
-will check to see if all of the prohibited matches match your allowed regular
-expressions, and if so, there is no failure. If any of the prohibited matches
-are not matched by your allowed regular expressions, there is a failure.
+First, git-secrets will extract all lines from a file that contain a prohibited
+match. Included in the matched results will be the full path to the name of
+the file that was matched, followed ':', followed by the line number that was
+matched, followed by the entire line from the file that was matched by a secret
+pattern. Then, if you've defined ``secrets.allowed`` regular expressions,
+git-secrets will check to see if all of the matched lines match at least one of
+your registered ``secrets.allowed`` regular expressions. If all of the lines
+that were flagged as secret are canceled out by an allowed match, then the
+subject text does not contain any secrets. If any of the matched lines are not
+matched by an allowed regular expression, then git-secrets will fail the
+commit/merge/message.
 
 .. important::
 
-    Allowed regular expressions are matched against the exact match extracted
-    from a prohibited pattern match. They do not match against any other
-    context than an exact match from a prohibited pattern.
+    Just as it is a bad practice to add ``secrets.patterns`` that are too
+    greedy, it is also a bad practice to add ``secrets.allowed`` patterns that
+    are too forgiving. Be sure to test out your patterns using ad-hoc calls to
+    ``git secrets scan -f $filename`` to ensure they are working as intended.
+
+Let's take a look at an example. Given the following ``$subject_text``::
+
+    This is a test!
+    password=example
+    password=re@lp@ssw0rd
+    More test...
+
+And the following registered ``secrets.patterns``::
+
+    password\s*=\s*.+
+
+And the following registered ``secrets.allowed``::
+
+    password\s*=\s*example
+
+Running ``echo "${subject_text}" | git secrets scan -f -e``, the result will
+be::
+
+    /tmp/example:3:password=re@lp@ssw0rd
+
+    [ERROR] Matched prohibited pattern
+
+    Possible mitigations:
+
+    - Mark false positives as allowed using: git config --add secrets.allowed ...
+    - List your configured patterns: git config --get-all secrets.patterns
+    - List your configured allowed patterns: git config --get-all secrets.allowed
+    - Use --no-verify if this is a one-time false positive
+
+The ``secrets.patterns`` value of ``password\s*=\s*.+`` will match the
+following lines::
+
+    /tmp/example:2:password=example
+    /tmp/example:3:password=re@lp@ssw0rd
+
+...But the first match will be filtered out due to the fact that it matches the
+``secrets.allowed`` regular expression of ``password\s*=\s*example``. Because
+there is still a remaining line that did not match, it is considered a secret.
 
 
 Manually editing git config
