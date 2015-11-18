@@ -15,7 +15,9 @@ rejected.
 Installing
 ----------
 
-First clone the repository. Then run the following command::
+First clone the repository. Then run the following command:
+
+.. code-block:: bash
 
     ./install.sh
 
@@ -154,7 +156,7 @@ regular expression patterns as false positives using the following command:
 
 .. code-block:: bash
 
-    git config --global --add secrets.allowed 'my regex pattern'
+    git config --add secrets.allowed 'my regex pattern'
 
 First, git-secrets will extract all lines from a file that contain a prohibited
 match. Included in the matched results will be the full path to the name of
@@ -179,19 +181,21 @@ Let's take a look at an example. Given the following subject text (stored in
 ``/tmp/example``)::
 
     This is a test!
-    password=example
-    password=re@lp@ssw0rd
+    password=ex@mplepassword
+    password=******
     More test...
 
-And the following registered ``secrets.patterns`` and ``secrets.allowed``::
+And the following registered ``secrets.patterns`` and ``secrets.allowed``:
+
+.. code-block:: bash
 
     git config --add secrets.patterns 'password\s*=\s*.+'
-    git config --add secrets.allowed password\s*=\s*example
+    git config --add secrets.allowed 'ex@mplepassword'
 
 Running ``git secrets scan -f /tmp/example``, the result will
 result in the following error output::
 
-    /tmp/example:3:password=re@lp@ssw0rd
+    /tmp/example:3:password=******
 
     [ERROR] Matched prohibited pattern
 
@@ -205,24 +209,28 @@ result in the following error output::
 Breaking this down, the ``secrets.patterns`` value of ``password\s*=\s*.+``
 will match the following lines::
 
-    /tmp/example:2:password=example
-    /tmp/example:3:password=re@lp@ssw0rd
+    /tmp/example:2:password=ex@mplepassword
+    /tmp/example:3:password=******
 
 ...But the first match will be filtered out due to the fact that it matches the
-``secrets.allowed`` regular expression of ``password\s*=\s*example``. Because
+``secrets.allowed`` regular expression of ``ex@mplepassword``. Because
 there is still a remaining line that did not match, it is considered a secret.
 
 Because that matching lines are placed on lines that start with the filename
 and line number (e.g., ``/tmp/example:3:...``), you can create
 ``secrets.allowed`` patterns that take filenames and line numbers into account
 in the regular expression. For example, you could whitelist an entire file
-using something like::
+using something like:
+
+.. code-block:: bash
 
     git config --add secrets.allowed '/tmp/example:.*'
     git secrets scan -f /tmp/example && echo $? # Outputs: 0
 
 Alternatively, you could whitelist a specific line number of a file if that
-line is unlikely to change using something like the following::
+line is unlikely to change using something like the following:
+
+.. code-block:: bash
 
     git config --add secrets.allowed '/tmp/example:3:.*'
     git secrets scan -f /tmp/example && echo $? # Outputs: 0
@@ -265,8 +273,6 @@ config might look something like this::
         url = git@github.com:foo/bar
         fetch = +refs/heads/*:refs/remotes/origin/*
     [secrets]
-        patterns = username=.+
-        patterns = password=.+
         patterns = [A-Z0-9]{20}
         patterns = (\"|')?(AWS_|aws_)?(SECRET|secret)(_ACCESS|_access)?_(KEY|key)(\"|')?\\s*(=|:|=>)\\s*(\"|')?[A-Za-z0-9/\\+=]{40}(\"|')?
         patterns = (\"|')?(AWS_|aws_)?(ACCOUNT|account)(_ID|_id)?(\"|')?\\s*(=|:|=>)\\s*(\"|')?[0-9]{4}\\-?[0-9]{4}\\-?[0-9]{4}(\"|')?
