@@ -175,23 +175,21 @@ commit/merge/message.
     are too forgiving. Be sure to test out your patterns using ad-hoc calls to
     ``git secrets scan -f $filename`` to ensure they are working as intended.
 
-Let's take a look at an example. Given the following ``$subject_text``::
+Let's take a look at an example. Given the following subject text (stored in
+``/tmp/example``)::
 
     This is a test!
     password=example
     password=re@lp@ssw0rd
     More test...
 
-And the following registered ``secrets.patterns``::
+And the following registered ``secrets.patterns`` and ``secrets.allowed``::
 
-    password\s*=\s*.+
+    git config --add secrets.patterns 'password\s*=\s*.+'
+    git config --add secrets.allowed password\s*=\s*example
 
-And the following registered ``secrets.allowed``::
-
-    password\s*=\s*example
-
-Running ``echo "${subject_text}" | git secrets scan -f -e``, the result will
-be::
+Running ``git secrets scan -f /tmp/example``, the result will
+result in the following error output::
 
     /tmp/example:3:password=re@lp@ssw0rd
 
@@ -204,8 +202,8 @@ be::
     - List your configured allowed patterns: git config --get-all secrets.allowed
     - Use --no-verify if this is a one-time false positive
 
-The ``secrets.patterns`` value of ``password\s*=\s*.+`` will match the
-following lines::
+Breaking this down, the ``secrets.patterns`` value of ``password\s*=\s*.+``
+will match the following lines::
 
     /tmp/example:2:password=example
     /tmp/example:3:password=re@lp@ssw0rd
@@ -213,6 +211,32 @@ following lines::
 ...But the first match will be filtered out due to the fact that it matches the
 ``secrets.allowed`` regular expression of ``password\s*=\s*example``. Because
 there is still a remaining line that did not match, it is considered a secret.
+
+Because that matching lines are placed on lines that start with the filename
+and line number (e.g., ``/tmp/example:3:...``), you can create
+``secrets.allowed`` patterns that take filenames and line numbers into account
+in the regular expression. For example, you could whitelist an entire file
+using something like::
+
+    git config --add secrets.allowed '/tmp/example:.*'
+    git secrets scan -f /tmp/example && echo $? # Outputs: 0
+
+Alternatively, you could whitelist a specific line number of a file if that
+line is unlikely to change using something like the following::
+
+    git config --add secrets.allowed '/tmp/example:3:.*'
+    git secrets scan -f /tmp/example && echo $? # Outputs: 0
+
+Keep this in mind when creating ``secrets.allowed`` patterns to ensure that
+your allowed patterns are not inadvertantly matched due to the fact that the
+filename is included in the subject text that allowed patterns are matched
+against.
+
+.. note::
+
+    At the implementation level, we use ``grep`` to first extract matches, then
+    a negative grep using the ``-v`` option to check if all of the extracted
+    matches were filtered out by an allowed pattern.
 
 
 Manually editing git config
