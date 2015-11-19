@@ -43,3 +43,4 @@ repo_run() {
   shift
   run "${BATS_TEST_DIRNAME}/../${cmd}" $@
 }
+

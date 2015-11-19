@@ -5,7 +5,7 @@ load test_helper
 @test "Rejects commits with prohibited patterns in changeset" {
   repo_run install.sh
   setup_bad_repo
-  repo_run git-secrets install -d $TEST_REPO
+  repo_run git-secrets --install -d $TEST_REPO
   cd $TEST_REPO
   run git commit -m 'Contents are bad not the message'
   [ $status -eq 1 ]
@@ -18,7 +18,7 @@ load test_helper
 @test "Allows commits that do not match prohibited patterns" {
   repo_run install.sh
   setup_good_repo
-  repo_run git-secrets install -d $TEST_REPO
+  repo_run git-secrets --install -d $TEST_REPO
   cd $TEST_REPO
   run git commit -m 'This is fine'
   [ $status -eq 0 ]

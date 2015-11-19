@@ -4,7 +4,7 @@ load test_helper
 
 @test "Installs git secrets" {
   run ./install.sh
-  run git secrets -h
+  run git secrets
   [ $status -eq 0 ]
 }
 

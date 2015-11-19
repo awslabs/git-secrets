@@ -10,13 +10,12 @@ load test_helper
 
 @test "-h prints help" {
   repo_run git-secrets -h
-  [ $status -eq 0 ]
   [ $(expr "${lines[0]}" : "usage: git secrets") -ne 0 ]
 }
 
 @test "Invalid scan filename fails" {
   setup_repo && cd $TEST_REPO
-  repo_run git-secrets scan -f /path/to/not/there
+  repo_run git-secrets --scan /path/to/not/there
   [ $status -eq 1 ]
   echo "$output" | grep "File not found: /path/to/not/there"
 }
@@ -24,14 +23,14 @@ load test_helper
 @test "Does not require secrets" {
   setup_repo && cd $TEST_REPO
   git config --unset-all secrets.patterns || true
-  repo_run git-secrets scan -f $BATS_TEST_FILENAME
+  repo_run git-secrets --scan $BATS_TEST_FILENAME
   [ $status -eq 0 ]
 }
 
 @test "No prohibited matches exits 0" {
   setup_repo && cd $TEST_REPO
   echo 'it is ok' > "$BATS_TMPDIR/test.txt"
-  repo_run git-secrets scan -f "$BATS_TMPDIR/test.txt"
+  repo_run git-secrets --scan "$BATS_TMPDIR/test.txt"
   [ $status -eq 0 ]
 }
 
@@ -40,10 +39,10 @@ load test_helper
   git config --add secrets.patterns 'foo="baz{1,5}"'
   git config --add secrets.allowed 'foo="bazzz"'
   echo 'foo="bazzz" is ok because 3 "z"s' > "$BATS_TMPDIR/test.txt"
-  repo_run git-secrets scan -f "$BATS_TMPDIR/test.txt"
+  repo_run git-secrets --scan "$BATS_TMPDIR/test.txt"
   [ $status -eq 0 ]
   echo 'This is NOT: ok foo="bazzzz"' > "$BATS_TMPDIR/test.txt"
-  repo_run git-secrets scan -f "$BATS_TMPDIR/test.txt"
+  repo_run git-secrets --scan "$BATS_TMPDIR/test.txt"
   [ $status -eq 1 ]
 }
 
@@ -52,7 +51,7 @@ load test_helper
   file="$TEST_REPO/test.txt"
   echo '@todo stuff' > $file
   echo 'this is forbidden right?' >> $file
-  repo_run git-secrets scan -f $file
+  repo_run git-secrets --scan $file
   [ $status -eq 1 ]
   [ "${lines[0]}" == "$file:1:@todo stuff" ]
   [ "${lines[1]}" == "$file:2:this is forbidden right?" ]
@@ -66,7 +65,7 @@ load test_helper
   # The following do match because they are in word boundaries.
   echo 'foo.me' >> $file
   echo '"me"' >> $file
-  repo_run git-secrets scan -f $file
+  repo_run git-secrets --scan $file
   [ $status -eq 1 ]
   [ "${lines[0]}" == "$file:2:foo.me" ]
   [ "${lines[1]}" == "$file:3:\"me\"" ]
@@ -74,24 +73,14 @@ load test_helper
 
 @test "Can scan from stdin using -" {
   setup_repo && cd $TEST_REPO
-  echo "foo" | "${BATS_TEST_DIRNAME}/../git-secrets" scan -f -
-  echo "me" | "${BATS_TEST_DIRNAME}/../git-secrets" scan -f - && exit 1 || true
-}
-
-@test "scan -h prints help" {
-  repo_run git-secrets scan -h
-  [ $(expr "${lines[0]}" : "usage: git secrets scan") -ne 0 ]
-}
-
-@test "install -h prints help" {
-  repo_run git-secrets install -h
-  [ $(expr "${lines[0]}" : "usage: git secrets install") -ne 0 ]
+  echo "foo" | "${BATS_TEST_DIRNAME}/../git-secrets" --scan -
+  echo "me" | "${BATS_TEST_DIRNAME}/../git-secrets" --scan - && exit 1 || true
 }
 
 @test "installs hooks for repo" {
   repo_run install.sh
   setup_bad_repo
-  repo_run git-secrets install -d $TEST_REPO
+  repo_run git-secrets --install -d $TEST_REPO
   [ -f $TEST_REPO/.git/hooks/pre-commit ]
   [ -f $TEST_REPO/.git/hooks/prepare-commit-msg ]
   [ -f $TEST_REPO/.git/hooks/commit-msg ]
@@ -104,7 +93,7 @@ load test_helper
   mkdir $TEST_REPO/.git/hooks/pre-commit.d
   mkdir $TEST_REPO/.git/hooks/prepare-commit-msg.d
   mkdir $TEST_REPO/.git/hooks/commit-msg.d
-  repo_run git-secrets install -d $TEST_REPO
+  repo_run git-secrets --install -d $TEST_REPO
   [ -f $TEST_REPO/.git/hooks/pre-commit.d/git-secrets ]
   [ -f $TEST_REPO/.git/hooks/prepare-commit-msg.d/git-secrets ]
   [ -f $TEST_REPO/.git/hooks/commit-msg.d/git-secrets ]

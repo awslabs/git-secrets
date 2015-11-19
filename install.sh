@@ -107,6 +107,11 @@ if [ ! -z "${INSTALL_DIR}" ]; then
 elif [ -d "/usr/local/bin" ]; then
   # Use /usr/local/bin as the directory if it exists.
   INSTALL_DIR="/usr/local/bin"
+  # Install the man page because we know /usr/local exits.
+  if [ -d '/usr/local/share/man/man1' ]; then
+    cp git-secrets.1 /usr/local/share/man/man1/git-secrets.1 \
+      && pass "Copied man page to /usr/local/share/man/man1"
+  fi
 else
   # Fall back to using git --exec-path
   INSTALL_DIR="$(git --exec-path)"
@@ -117,13 +122,7 @@ cp git-secrets "${path}" && chmod +x "${path}" \
   && pass "Installed git-secrets command at ${INSTALL_DIR}/git-secrets" \
   || fail "Could not install git-secrets at ${INSTALL_DIR}/git-secrets"
 
-# 2) Call help to ensure it installed correctly
-########################################################
-git secrets -h > /dev/null 2>&1 \
-  && pass "git-secrets has been installed successfully" \
-  || fail "git-secrets did not install correctly"
-
-# 3) Import common patterns from git configs
+# 2) Import common patterns from git configs
 ########################################################
 git_ini_checks=('user.email' 'github.user' 'github.token')
 for check in "${git_ini_checks[@]}"; do
@@ -135,7 +134,7 @@ for check in "${git_ini_checks[@]}"; do
   fi
 done
 
-# 4) Add common AWS patterns
+# 3) Add common AWS patterns
 ########################################################
 if prompt "Add common AWS patterns (keys, secrets, account ID, etc.)?"; then
   # Reusable regex patterns
@@ -148,7 +147,7 @@ if prompt "Add common AWS patterns (keys, secrets, account ID, etc.)?"; then
   add_allowed 'Example Secret Access Key' "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 fi
 
-# 5) Import passwords from ~/.aws/credentials file
+# 4) Import passwords from ~/.aws/credentials file
 ########################################################
 if [ -x "$(which aws 2>&1)" ] \
       && [ -f ~/.aws/credentials ] \
@@ -163,10 +162,10 @@ if [ -x "$(which aws 2>&1)" ] \
   done
 fi
 
-# 6) Last step: ensure secrets can scan correctly
+# 5) Last step: ensure secrets can scan correctly
 ########################################################
 echo
-echo '' | git secrets scan -f - \
+echo '' | git secrets --scan - \
   && pass 'Successfully installed' \
   || fail 'Failed to install correctly'
 echo

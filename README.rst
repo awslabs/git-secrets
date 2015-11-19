@@ -2,8 +2,21 @@
 git-secrets
 ===========
 
-``git-secrets`` prevents you from committing passwords and other sensitive
-information to a git repository.
+Prevents you from committing passwords and other sensitive information to a
+git repository.
+
+
+Synopsis
+--------
+
+::
+
+    git secrets --install [-d | --dir <repo>]
+    git secrets --scan <files>...
+
+
+Description
+-----------
 
 ``git-secrets`` scans commits, commit messages, and ``--no-ff`` merges to
 prevent adding secrets into your git repositories. If a commit,
@@ -12,99 +25,112 @@ your configured prohibited regular expression patterns, then the commit is
 rejected.
 
 
-Installing
-----------
+Installing git-secrets
+~~~~~~~~~~~~~~~~~~~~~~
 
-First clone the repository. Then run the following command:
-
-.. code-block:: bash
-
-    ./install.sh
-
-The ``install.sh`` script will perform the following actions:
-
-1. Install the ``git-secrets`` command to your PATH.
-2. Ask if you want to install a number of pre-configured prohibited patterns.
-3. Ask if you want to import known credentials from ``~/.aws/credentials`` as
-   prohibited.
-4. Ensure that it was installed correctly.
+It is recommended to run the ``install.sh`` script from the
+`git-secrets <https://github.com/awslabs/git-secrets>`_ repository to install
+``git-secrets``. ``install.sh`` will copy ``git-secrets`` to the appropriate
+path (either ``/usr/local/bin`` or ``$(git --exec-path)``), and will ask you
+through a series of prompts if you would like to seed you secrets configuration
+with common secrets. This includes scanning for AWS credentials, AWS account
+IDs, and other pieces of information found in your git config.
 
 .. warning::
 
     You're not done yet! You MUST install the git hooks for every repo that
-    you wish to use with ``git secrets install``.
+    you wish to use with ``git secrets --install``.
 
 
-Installing git hooks for a repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Options
+-------
 
-You can install ``pre-commit``, ``commit-msg``, and ``prepare-commit-msg``
-hooks to a repository to ensure that prohibited words or patterns never make it
-into the repository. This can be done by running the ``git secrets install``
-command while inside of a git repository.
+Operation Modes
+~~~~~~~~~~~~~~~
 
-.. code-block:: bash
+Each of these options must appear first on the command line.
 
-    cd /path/to/git/repo
-    git secrets install
+--install
+    Installs hooks for a repository. Once the hooks are installed for a git
+    repository, commits and non-ff merges for that repository will be prevented
+    from committing secrets.
 
-You can also provide the path to the repository using the ``--dir`` option.
+    Usage: ``git secrets --install [-d | --dir <repo>]``
 
-.. code-block:: bash
+--scan
+    Scans one or more files for secrets. When a file contains a secret, the
+    matched text from the file being scanned will be written to stdout and the
+    script will exit with a non-zero RC. Each matched line will be written with
+    the name of the file that matched, a colon, the line number that matched,
+    a colon, and then the line of text that matched.
 
-    git secrets install --dir /path/to/git/repo
-
-``git-secrets`` installs several hooks:
-
-1. ``pre-commit``: Used to check if any of the files changed in the commit
-   use prohibited patterns.
-2. ``commit-msg``: Used to determine if a commit message contains a prohibited
-   patterns.
-3. ``prepare-commit-msg``: Used to determine if a merge commit will introduce
-   a history that contains a prohibited pattern at any point. Please note that
-   this hook is only invoked for non fast-forward merges.
+    Usage: ``git secrets --scan <files>...``
 
 
-Debian style directories
-^^^^^^^^^^^^^^^^^^^^^^^^
+Options for ``--install``
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Git only allows a single script to be executed per hook. If the repository
-contains Debian style subdirectories like ``pre-commit.d`` and
-``commit-msg.d``, then the git hooks will be installed into these directories,
-which assumes that you've configured the corresponding hooks to execute all of
-the scripts found in these directories. If these git subdirectories are not
-present, then the git hooks will be installed to the git repo's ``.git/hooks``
-directory, overwriting any previously configured hook. In the event that the
-hooks are overwritten, a warning will be written to stdout.
+-d, --dir
+    When provided, installs git hooks to the given repository. The current
+    directory is assumed if ``--dir`` is not provided.
+
+    The following git hooks are installed:
+
+    1. ``pre-commit``: Used to check if any of the files changed in the commit
+       use prohibited patterns.
+    2. ``commit-msg``: Used to determine if a commit message contains a
+       prohibited patterns.
+    3. ``prepare-commit-msg``: Used to determine if a merge commit will
+       introduce a history that contains a prohibited pattern at any point.
+       Please note that this hook is only invoked for non fast-forward merges.
+
+    .. note::
+
+        Git only allows a single script to be executed per hook. If the
+        repository contains Debian style subdirectories like ``pre-commit.d``
+        and ``commit-msg.d``, then the git hooks will be installed into these
+        directories, which assumes that you've configured the corresponding
+        hooks to execute all of the scripts found in these directories. If
+        these git subdirectories are not present, then the git hooks will be
+        installed to the git repo's ``.git/hooks`` directory, overwriting any
+        previously configured hook. In the event that the hooks are
+        overwritten, a warning will be written to stdout.
 
 
-Skipping validation
-^^^^^^^^^^^^^^^^^^^
+Examples
+^^^^^^^^
 
-Use the ``--no-verify`` option in the event of a false-positive match in a
-commit, merge, or commit message. This will skip the execution of the
-git hook and allow you to make the commit or merge.
+Install git hooks to the current directory::
+
+    cd /path/to/my/repository
+    git secrets --install
+
+Install git hooks to a repository other than the current directory::
+
+    git secrets --install -d /path/to/my/repository
 
 
-Scanning files
---------------
+Options for ``--scan``
+~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to using hooks to automatically scan, you can scan files and text
-ad-hoc using the ``git secrets scan`` command directly (for example, this might
-be useful for testing your configured patterns).
+<files>...
+    The path to one or more files on disk to scan for secrets.
 
-The ``git-secrets scan`` command accepts the path to a file to check and will
-report if any of the prohibited matches are found in the file.
 
-.. code-block:: bash
+Examples
+^^^^^^^^
 
-    $ git secrets scan -f path/to/file
-    $ echo $?
-    > 0
+Scans a file for secrets::
 
-``git secrets scan`` will first scan the given file for any of the prohibited
-regular expression patterns defined by the result of
-``git config --get-all secrets.patternss``.
+    git secrets --scan /path/to/file
+
+Scans multiple files for secrets::
+
+    git secrets --scan /path/to/file /path/to/other/file
+
+You can scan by globbing::
+
+    git secrets --scan /path/to/directory/*
 
 
 Defining prohibited patterns
@@ -127,14 +153,14 @@ like Ubuntu (BSD vs GNU).
 You can add prohibited regular expression patterns to your git config by
 running the following command:
 
-.. code-block:: bash
+::
 
     git config --add secrets.patterns 'my regex pattern'
 
 You can list the patterns that have been configured using the following
 command:
 
-.. code-block:: bash
+::
 
     git config --get-all secrets.patterns
 
@@ -142,19 +168,19 @@ Patterns will by default be added to the local git repository only. Use the
 ``--global`` option to add the pattern to your global list of prohibited
 patterns:
 
-.. code-block:: bash
+::
 
     git config --global --add secrets.patterns 'my regex pattern'
 
 
 Ignoring false-positives
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 Sometimes a regular expression might match false positives. For example, git
 commit SHAs look a lot like AWS access keys. You can specify many different
 regular expression patterns as false positives using the following command:
 
-.. code-block:: bash
+::
 
     git config --add secrets.allowed 'my regex pattern'
 
@@ -175,7 +201,10 @@ commit/merge/message.
     Just as it is a bad practice to add ``secrets.patterns`` that are too
     greedy, it is also a bad practice to add ``secrets.allowed`` patterns that
     are too forgiving. Be sure to test out your patterns using ad-hoc calls to
-    ``git secrets scan -f $filename`` to ensure they are working as intended.
+    ``git secrets --scan $filename`` to ensure they are working as intended.
+
+Example walkthrough
+~~~~~~~~~~~~~~~~~~~
 
 Let's take a look at an example. Given the following subject text (stored in
 ``/tmp/example``)::
@@ -187,12 +216,12 @@ Let's take a look at an example. Given the following subject text (stored in
 
 And the following registered ``secrets.patterns`` and ``secrets.allowed``:
 
-.. code-block:: bash
+::
 
     git config --add secrets.patterns 'password\s*=\s*.+'
     git config --add secrets.allowed 'ex@mplepassword'
 
-Running ``git secrets scan -f /tmp/example``, the result will
+Running ``git secrets --scan /tmp/example``, the result will
 result in the following error output::
 
     /tmp/example:3:password=******
@@ -222,18 +251,20 @@ and line number (e.g., ``/tmp/example:3:...``), you can create
 in the regular expression. For example, you could whitelist an entire file
 using something like:
 
-.. code-block:: bash
+::
 
     git config --add secrets.allowed '/tmp/example:.*'
-    git secrets scan -f /tmp/example && echo $? # Outputs: 0
+    git secrets --scan /tmp/example && echo $?
+    # Outputs: 0
 
 Alternatively, you could whitelist a specific line number of a file if that
 line is unlikely to change using something like the following:
 
-.. code-block:: bash
+::
 
     git config --add secrets.allowed '/tmp/example:3:.*'
-    git secrets scan -f /tmp/example && echo $? # Outputs: 0
+    git secrets --scan /tmp/example && echo $?
+    # Outputs: 0
 
 Keep this in mind when creating ``secrets.allowed`` patterns to ensure that
 your allowed patterns are not inadvertantly matched due to the fact that the
@@ -247,14 +278,14 @@ against.
     matches were filtered out by an allowed pattern.
 
 
-Manually editing git config
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Manually editing your git config
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You may find that it's easier to simply edit your git config file directly
 rather than executing multiple ``git config --add`` commands from the command
 line. You can edit a project's config file using the following command:
 
-.. code-block:: bash
+::
 
     git config -e
 
@@ -285,8 +316,17 @@ More information on git configuration can be found in the
 `git documentation <https://git-scm.com/docs/git-config>`_.
 
 
-Testing
--------
+Skipping validation
+-------------------
 
-Testing is done using ``make test``. Tests are executed using the
-`bats <https://github.com/sstephenson/bats>`_ test runner for bash.
+Use the ``--no-verify`` option in the event of a false-positive match in a
+commit, merge, or commit message. This will skip the execution of the
+git hook and allow you to make the commit or merge.
+
+
+About
+------
+
+- Author: Michael Dowling <https://github.com/mtdowling>
+- Issue tracker: This project's source code and issue tracker can be found at
+  `https://github.com/awslabs/git-secrets <https://github.com/awslabs/git-secrets>`_

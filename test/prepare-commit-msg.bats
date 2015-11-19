@@ -5,7 +5,7 @@ load test_helper
 @test "Rejects merges with prohibited patterns in history" {
   setup_good_repo
   repo_run install.sh
-  repo_run git-secrets install -d $TEST_REPO
+  repo_run git-secrets --install -d $TEST_REPO
   cd $TEST_REPO
   git commit -m 'OK'
   git checkout -b feature
@@ -27,7 +27,7 @@ load test_helper
   setup_good_repo
   repo_run install.sh
   cd $TEST_REPO
-  repo_run git-secrets install
+  repo_run git-secrets --install
   git commit -m 'OK'
   git checkout -b feature
   echo 'Not bad' > data.txt
