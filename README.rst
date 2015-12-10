@@ -162,7 +162,7 @@ Install git hooks to the current directory::
 
 Install git hooks to a repository other than the current directory::
 
-    git secrets --install -/path/to/my/repository
+    git secrets --install /path/to/my/repository
 
 Create a git template that has ``git-secrets`` installed, and then copy that
 template into a git repository::
