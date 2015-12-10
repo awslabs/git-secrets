@@ -1,0 +1,6 @@
+git-secrets
+Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+bats
+This product bundles bats, which is available under a "MIT" license.
+For details, see test/bats.
