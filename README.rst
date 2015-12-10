@@ -445,5 +445,7 @@ About
 - Author: Michael Dowling <https://github.com/mtdowling>
 - Issue tracker: This project's source code and issue tracker can be found at
   `https://github.com/awslabs/git-secrets <https://github.com/awslabs/git-secrets>`_
+- Special thanks to Adrian Vatchinsky and Ari Juels of Cornell University for
+  providing suggestions and feedback.
 
 Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
