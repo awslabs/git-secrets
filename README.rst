@@ -47,6 +47,14 @@ customize the install path using the PREFIX and MANPREFIX variables.
     You're not done yet! You MUST install the git hooks for every repo that
     you wish to use with ``git secrets --install``.
 
+Here's a quick example of how to ensure a git repository is scanned for secrets
+on each commit::
+
+    cd /path/to/my/repo
+    git secrets --install
+    git secrets --register-aws
+
+
 
 Options
 -------
@@ -76,7 +84,7 @@ Each of these options must appear first on the command line.
 ``--add``
     Adds a prohibited or allowed pattern.
 
-``add-provider``
+``--add-provider``
     Registers a secret provider. Secret providers are executables that when
     invoked outputs prohibited patterns that ``git-secrets`` should treat as
     prohibited.
