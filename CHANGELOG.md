@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## 1.0.1 - 2015-01-11
+## 1.0.1 - 2016-01-11
 
 * Now works correctly with filenames in a repository that contain spaces when
   executing `git secrets --scan` with no provided filename (via `git grep`).
