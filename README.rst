@@ -42,6 +42,12 @@ customize the install path using the PREFIX and MANPREFIX variables.
 
     make install
 
+Or, installing with Homebrew (for OS X users).
+
+::
+
+    brew install git-secrets
+
 .. warning::
 
     You're not done yet! You MUST install the git hooks for every repo that
