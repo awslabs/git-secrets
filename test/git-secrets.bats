@@ -36,6 +36,12 @@ load test_helper
   [ $status -eq 1 ]
 }
 
+@test "Scans all files including history when no file provided" {
+  setup_bad_repo
+  repo_run git-secrets --scan-history
+  [ $status -eq 1 ]
+}
+
 @test "Scans recursively" {
   setup_bad_repo
   mkdir -p $TEST_REPO/foo/bar/baz
