@@ -12,6 +12,7 @@ Synopsis
 ::
 
     git secrets --scan [-r|--recursive] [<files>...]
+    git secrets --scan-history
     git secrets --install [-f|--force] [<target-directory>]
     git secrets --list [--global]
     git secrets --add [-a|--allowed] [-l|--literal] [--global] <pattern>
@@ -82,6 +83,13 @@ Each of these options must appear first on the command line.
     the name of the file that matched, a colon, the line number that matched,
     a colon, and then the line of text that matched. If no files are provided,
     all files returned by ``git ls-files`` are scanned.
+
+``--scan-history``
+    Scans repository including all revisions. When a file contains a secret, the
+    matched text from the file being scanned will be written to stdout and the
+    script will exit with a non-zero RC. Each matched line will be written with
+    the name of the file that matched, a colon, the line number that matched,
+    a colon, and then the line of text that matched.
 
 ``--list``
     Lists the git-secrets configuration for the current repo or in the global
