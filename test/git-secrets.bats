@@ -36,8 +36,20 @@ load test_helper
   [ $status -eq 1 ]
 }
 
-@test "Scans all files including history when no file provided" {
+@test "Scans all files including history" {
   setup_bad_repo
+  repo_run git-secrets --scan-history
+  [ $status -eq 1 ]
+}
+
+@test "Scans all files when no file provided with secret in history" {
+  setup_bad_repo_history
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+}
+
+@test "Scans all files including history with secret in history" {
+  setup_bad_repo_history
   repo_run git-secrets --scan-history
   [ $status -eq 1 ]
 }
