@@ -88,8 +88,8 @@ Each of these options must appear first on the command line.
     Scans repository including all revisions. When a file contains a secret, the
     matched text from the file being scanned will be written to stdout and the
     script will exit with a non-zero RC. Each matched line will be written with
-    the name of the file that matched, a colon, the line number that matched,
-    a colon, and then the line of text that matched.
+    the commit hash, a colon, the name of the file that matched, a colon, the
+    line number that matched, a colon, and then the line of text that matched.
 
 ``--list``
     Lists the git-secrets configuration for the current repo or in the global
