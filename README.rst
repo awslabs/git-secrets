@@ -11,7 +11,7 @@ Synopsis
 
 ::
 
-    git secrets --scan [-r|--recursive] [<files>...]
+    git secrets --scan [-r|--recursive] [--cached] [--no-index] [--untracked] [<files>...]
     git secrets --install [-f|--force] [<target-directory>]
     git secrets --list [--global]
     git secrets --add [-a|--allowed] [-l|--literal] [--global] <pattern>
@@ -196,6 +196,19 @@ Options for ``--scan``
     Scans the given files recursively. If a directory is encountered, the
     directory will be scanned. If ``-r`` is not provided, directories will be
     ignored.
+
+    ``-r`` cannot be used alongside ``--cached``, ``--no-index``, or
+    ``--untracked``.
+
+``--cached``
+    Searches blobs registered in the index file.
+
+``--no-index``
+    Searches files in the current directory that is not managed by Git.
+
+``--untracked``
+    In addition to searching in the tracked files in the working tree,
+    ``--scan`` also in untracked files.
 
 ``<files>...``
     The path to one or more files on disk to scan for secrets.

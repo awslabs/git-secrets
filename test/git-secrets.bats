@@ -227,3 +227,47 @@ load test_helper
   echo "$output" | grep -F 'foo baz bar'
   echo "$output" | grep -F 'bam'
 }
+
+@test "--recursive cannot be used with SCAN_*" {
+  repo_run git-secrets --scan -r --cached
+  [ $status -eq 1 ]
+  repo_run git-secrets --scan -r --no-index
+  [ $status -eq 1 ]
+  repo_run git-secrets --scan -r --untracked
+  [ $status -eq 1 ]
+}
+
+@test "-recursive can only be used with --scan" {
+  repo_run git-secrets --list -r
+  [ $status -eq 1 ]
+}
+
+@test "-f can only be used with --install" {
+  repo_run git-secrets --scan -f
+  [ $status -eq 1 ]
+}
+
+@test "-a can only be used with --add" {
+  repo_run git-secrets --scan -a
+  [ $status -eq 1 ]
+}
+
+@test "-l can only be used with --add" {
+  repo_run git-secrets --scan -l
+  [ $status -eq 1 ]
+}
+
+@test "--cached can only be used with --scan" {
+  repo_run git-secrets --list --cached
+  [ $status -eq 1 ]
+}
+
+@test "--no-index can only be used with --scan" {
+  repo_run git-secrets --list --no-index
+  [ $status -eq 1 ]
+}
+
+@test "--untracked can only be used with --scan" {
+  repo_run git-secrets --list --untracked
+  [ $status -eq 1 ]
+}

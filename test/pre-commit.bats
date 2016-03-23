@@ -12,6 +12,18 @@ load test_helper
   [ "${lines[2]}" == "failure2.txt:1:me" ]
 }
 
+@test "Scans staged files" {
+  cd $TEST_REPO
+  repo_run git-secrets --install $TEST_REPO
+  echo '@todo more stuff' > $TEST_REPO/data.txt
+  echo 'hi there' > $TEST_REPO/ok.txt
+  git add -A
+  echo 'fixed the working directory, but not staged' > $TEST_REPO/data.txt
+  run git commit -m 'Contents are bad not the message'
+  [ $status -eq 1 ]
+  [ "${lines[0]}" == "data.txt:1:@todo more stuff" ]
+}
+
 @test "Allows commits that do not match prohibited patterns" {
   setup_good_repo
   repo_run git-secrets --install $TEST_REPO
