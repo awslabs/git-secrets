@@ -1,5 +1,6 @@
 #!/bin/bash
 export TEST_REPO="$BATS_TMPDIR/test-repo"
+export TEMP_HOME="$BATS_TMPDIR/home"
 export TEMPLATE_DIR="${BATS_TMPDIR}/template"
 INITIAL_PATH="${PATH}"
 
@@ -11,21 +12,26 @@ setup() {
 }
 
 teardown() {
-  delete_repo
+  delete_repo_home
   export PATH="${INITIAL_PATH}"
 }
 
-delete_repo() {
+delete_repo_home() {
   [ -d $TEST_REPO ] && rm -rf $TEST_REPO || true
+  [ -d $TEMP_HOME ] && rm -rf $TEMP_HOME || true
 }
 
 setup_repo() {
-  delete_repo
+  delete_repo_home
   mkdir -p $TEST_REPO
+  mkdir -p $TEMP_HOME
+  export HOME=$TEMP_HOME
   cd $TEST_REPO
   git init
   git config --local --add secrets.patterns '@todo'
   git config --local --add secrets.patterns 'forbidden|me'
+  git config --local user.email "you@example.com"
+  git config --local user.name "Your Name"
   cd -
 }
 
