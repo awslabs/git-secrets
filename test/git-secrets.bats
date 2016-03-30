@@ -202,6 +202,22 @@ load test_helper
   echo "$output" | grep -F 'secrets.allowed testing\+abc'
 }
 
+@test "Scans all files and allowing none of the bad patterns in .gitallowed" {
+  setup_bad_repo
+  echo 'hello' > $TEST_REPO/.gitallowed
+  repo_run git-secrets --scan
+  [ $status -eq 1 ]
+}
+
+@test "Scans all files and allowing all bad patterns in .gitallowed" {
+  setup_bad_repo
+  echo '@todo' > $TEST_REPO/.gitallowed
+  echo 'forbidden' >> $TEST_REPO/.gitallowed
+  echo 'me' >> $TEST_REPO/.gitallowed
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+}
+
 @test "Adds common AWS patterns" {
   repo_run git config --unset-all secrets
   repo_run git-secrets --register-aws
