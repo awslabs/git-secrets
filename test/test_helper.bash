@@ -3,7 +3,7 @@ export TEST_REPO="$BATS_TMPDIR/test-repo"
 export TEMP_HOME="$BATS_TMPDIR/home"
 export TEMPLATE_DIR="${BATS_TMPDIR}/template"
 INITIAL_PATH="${PATH}"
-INITLAL_HOME=${HOME}
+INITIAL_HOME=${HOME}
 
 setup() {
   setup_repo
@@ -18,7 +18,7 @@ setup() {
 teardown() {
   delete_repo
   export PATH="${INITIAL_PATH}"
-  export HOME="${INITLAL_HOME}"
+  export HOME="${INITIAL_HOME}"
   [ -d "${TEMP_HOME}" ] && rm -rf "${TEMP_HOME}"
 }
 
