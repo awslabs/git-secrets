@@ -3,29 +3,32 @@ export TEST_REPO="$BATS_TMPDIR/test-repo"
 export TEMP_HOME="$BATS_TMPDIR/home"
 export TEMPLATE_DIR="${BATS_TMPDIR}/template"
 INITIAL_PATH="${PATH}"
+INITLAL_HOME=${HOME}
 
 setup() {
   setup_repo
   [ -d "${TEMPLATE_DIR}" ] && rm -rf "${TEMPLATE_DIR}"
+  [ -d "${TEMP_HOME}" ] && rm -rf "${TEMP_HOME}"
+  mkdir -p $TEMP_HOME
+  export HOME=$TEMP_HOME
   export PATH="${BATS_TEST_DIRNAME}/..:${INITIAL_PATH}"
   cd $TEST_REPO
 }
 
 teardown() {
-  delete_repo_home
+  delete_repo
   export PATH="${INITIAL_PATH}"
+  export HOME="${INITLAL_HOME}"
+  [ -d "${TEMP_HOME}" ] && rm -rf "${TEMP_HOME}"
 }
 
-delete_repo_home() {
+delete_repo() {
   [ -d $TEST_REPO ] && rm -rf $TEST_REPO || true
-  [ -d $TEMP_HOME ] && rm -rf $TEMP_HOME || true
 }
 
 setup_repo() {
-  delete_repo_home
+  delete_repo
   mkdir -p $TEST_REPO
-  mkdir -p $TEMP_HOME
-  export HOME=$TEMP_HOME
   cd $TEST_REPO
   git init
   git config --local --add secrets.patterns '@todo'
