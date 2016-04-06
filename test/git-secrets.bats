@@ -36,6 +36,42 @@ load test_helper
   [ $status -eq 1 ]
 }
 
+@test "Scans all files including history" {
+  setup_bad_repo
+  repo_run git-secrets --scan-history
+  [ $status -eq 1 ]
+}
+
+@test "Scans all files when no file provided with secret in history" {
+  setup_bad_repo_history
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+}
+
+@test "Scans all files including history with secret in history" {
+  setup_bad_repo_history
+  repo_run git-secrets --scan-history
+  [ $status -eq 1 ]
+}
+
+@test "Scans history with secrets distributed among branches in history" {
+  cd $TEST_REPO
+  echo '@todo' > $TEST_REPO/history_failure.txt
+  git add -A
+  git commit -m "Testing history"
+  echo 'todo' > $TEST_REPO/history_failure.txt
+  git add -A
+  git commit -m "Testing history"
+  git checkout -b testbranch
+  echo '@todo' > $TEST_REPO/history_failure.txt
+  git add -A
+  git commit -m "Testing history"
+  git checkout master
+  cd -
+  repo_run git-secrets --scan-history
+  [ $status -eq 1 ]
+}
+
 @test "Scans recursively" {
   setup_bad_repo
   mkdir -p $TEST_REPO/foo/bar/baz

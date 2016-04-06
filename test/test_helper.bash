@@ -57,6 +57,17 @@ setup_bad_repo() {
   cd -
 }
 
+# Creates a repo that should fail
+setup_bad_repo_history() {
+  cd $TEST_REPO
+  echo '@todo' > $TEST_REPO/history_failure.txt
+  git add -A
+  git commit -m "Testing history"
+  echo 'todo' > $TEST_REPO/history_failure.txt
+  git add -A
+  cd -
+}
+
 # Creates a repo that does not fail
 setup_good_repo() {
   cd $TEST_REPO
