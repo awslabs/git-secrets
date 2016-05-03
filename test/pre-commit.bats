@@ -12,6 +12,15 @@ load test_helper
   [ "${lines[2]}" == "failure2.txt:1:me" ]
 }
 
+@test "Rejects commits with prohibited patterns in changeset with filename that contain spaces" {
+  setup_bad_repo_with_spaces
+  repo_run git-secrets --install $TEST_REPO
+  cd $TEST_REPO
+  run git commit -m 'Contents are bad not the message'
+  [ $status -eq 1 ]
+  [ "${lines[0]}" == "da ta.txt:1:@todo more stuff" ]
+}
+
 @test "Scans staged files" {
   cd $TEST_REPO
   repo_run git-secrets --install $TEST_REPO
