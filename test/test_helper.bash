@@ -58,6 +58,14 @@ setup_bad_repo() {
 }
 
 # Creates a repo that should fail
+setup_bad_repo_with_spaces() {
+  cd $TEST_REPO
+  echo '@todo more stuff' > "$TEST_REPO/da ta.txt"
+  git add -A
+  cd -
+}
+
+# Creates a repo that should fail
 setup_bad_repo_history() {
   cd $TEST_REPO
   echo '@todo' > $TEST_REPO/history_failure.txt
