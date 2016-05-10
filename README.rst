@@ -363,7 +363,8 @@ regular expression patterns as false positives using the following command:
     git secrets --add --allowed 'my regex pattern'
 
 You can also add regular expressions patterns to filter false positives to a 
-.gitallowed file located in the repository's root directory.
+.gitallowed file located in the repository's root directory. Lines starting
+with # are skipped (comment line) and empty lines are also skipped.
 
 First, git-secrets will extract all lines from a file that contain a prohibited
 match. Included in the matched results will be the full path to the name of
