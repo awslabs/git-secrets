@@ -245,6 +245,18 @@ load test_helper
   [ $status -eq 1 ]
 }
 
+@test "Comment lines must be ignored in .gitallowed files" {
+  setup_bad_repo_with_hash
+  repo_run git-secrets --scan
+  [ $status -eq 1 ]
+  echo '#hash' > $TEST_REPO/.gitallowed
+  repo_run git-secrets --scan
+  [ $status -eq 1 ]
+  echo 'hash' > $TEST_REPO/.gitallowed
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+}
+
 @test "Scans all files and allowing none of the bad patterns in .gitallowed" {
   setup_bad_repo
   echo 'hello' > $TEST_REPO/.gitallowed
