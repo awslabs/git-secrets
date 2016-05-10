@@ -289,6 +289,11 @@ load test_helper
   [ $status -eq 1 ]
 }
 
+@test "-recursive is mutual exclusive with --scan" {
+  repo_run git-secrets --scan -r
+  [ $status -eq 0 ]
+}
+
 @test "-recursive can only be used with --scan" {
   repo_run git-secrets --list -r
   [ $status -eq 1 ]
