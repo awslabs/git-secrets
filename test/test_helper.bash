@@ -33,6 +33,7 @@ setup_repo() {
   git init
   git config --local --add secrets.patterns '@todo'
   git config --local --add secrets.patterns 'forbidden|me'
+  git config --local --add secrets.patterns '#hash'
   git config --local user.email "you@example.com"
   git config --local user.name "Your Name"
   cd -
@@ -61,6 +62,14 @@ setup_bad_repo() {
 setup_bad_repo_with_spaces() {
   cd $TEST_REPO
   echo '@todo more stuff' > "$TEST_REPO/da ta.txt"
+  git add -A
+  cd -
+}
+
+# Creates a repo that should fail
+setup_bad_repo_with_hash() {
+  cd $TEST_REPO
+  echo '#hash' > "$TEST_REPO/data.txt"
   git add -A
   cd -
 }
