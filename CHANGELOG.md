@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 1.2.0 - 2016-05-23
+
+* Fixed an issue where spaces files with spaces in their names were not being
+  properly scanned in the pre-commit hook.
+* Now ignoring empty lines and comments (e.g., `#`) in the .gitallowed file.
+* Fixed an issue where numbers were being compared to strings causing failures
+  on some platforms.
+
 ## 1.1.0 - 2016-04-06
 
 * Bug fix: the pre-commit hook previously only scanned the working directory
