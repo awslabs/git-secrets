@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.2.1 - 2016-06-27
+
+* Fixed an issue where secret provider commands were causing "command not
+  found" errors due to a previously set IFS variable.
+  https://github.com/awslabs/git-secrets/pull/30
+
 ## 1.2.0 - 2016-05-23
 
 * Fixed an issue where spaces files with spaces in their names were not being
