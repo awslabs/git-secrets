@@ -299,6 +299,18 @@ load test_helper
   echo "$output" | grep -F 'bam'
 }
 
+@test "Strips providers that return nothing" {
+  repo_run git-secrets --add-provider -- 'echo'
+  [ $status -eq 0 ]
+  repo_run git-secrets --add-provider -- 'echo 123'
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  echo "$output" | grep -F 'echo 123'
+  echo 'foo' > $TEST_REPO/bad_file
+  repo_run git-secrets --scan $TEST_REPO/bad_file
+  [ $status -eq 0 ]
+}
+
 @test "--recursive cannot be used with SCAN_*" {
   repo_run git-secrets --scan -r --cached
   [ $status -eq 1 ]
