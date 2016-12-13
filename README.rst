@@ -420,8 +420,8 @@ And the following registered patterns:
 
 ::
 
-    git config --add 'password\s*=\s*.+'
-    git config --add --allowed --literal 'ex@mplepassword'
+    git secrets --add 'password\s*=\s*.+'
+    git secrets --add --allowed --literal 'ex@mplepassword'
 
 Running ``git secrets --scan /tmp/example``, the result will
 result in the following error output::
