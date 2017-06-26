@@ -3,7 +3,7 @@ load test_helper
 
 @test "no arguments prints usage instructions" {
   repo_run git-secrets
-  [ $status -eq 0 ]
+  [ $status -ne 0 ]
   [ $(expr "${lines[0]}" : "usage: git secrets") -ne 0 ]
 }
 
