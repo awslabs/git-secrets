@@ -1,3 +1,6 @@
+services:
+  - docker
+
 language: bash
 
 before_install:
@@ -6,3 +9,4 @@ before_install:
 
 script:
 - make test
+- docker build -f Dockerfile -t git-secrets-ubuntu:latest docker/ubuntu/
