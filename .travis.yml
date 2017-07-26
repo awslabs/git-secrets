@@ -9,4 +9,4 @@ before_install:
 
 script:
 - make test
-- docker build -f Dockerfile -t git-secrets-ubuntu:latest docker/ubuntu/
+- docker build -t git-secrets-ubuntu:latest docker/ubuntu/
