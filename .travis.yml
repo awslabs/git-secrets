@@ -1,3 +1,6 @@
+services:
+  - docker
+
 language: bash
 
 before_install:
@@ -6,3 +9,11 @@ before_install:
 
 script:
 - make test
+- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:2.7.4-0ubuntu1' -e 'BASH_VER=4.0' ubuntu /run.sh
+- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:2.7.4-0ubuntu1' -e 'BASH_VER=4.0' ubuntu:14.04 /run.sh
+- docker run -it -v $PWD/docker-run.sh:/run.sh -e 'BASH_VER=4.0' centos /run.sh
+
+after_script:
+- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:2.7.4-0ubuntu1' -e 'BASH_VER=3.0' ubuntu /run.sh
+- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:2.7.4-0ubuntu1' -e 'BASH_VER=3.0' ubuntu:14.04 /run.sh
+- docker run -it -v $PWD/docker-run.sh:/run.sh -e 'BASH_VER=4.0' centos /run.sh
