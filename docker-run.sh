@@ -3,14 +3,15 @@
 set -e
 
 if [ -f /etc/debian_version ]; then
-    apt-get -y -q update
+    echo "Updating apt-get"
+    apt-get -qq -y update
     echo "Installing gcc wget make git=$GIT_VER"
-    apt-get -y -qq install gcc wget make git=$GIT_VER
+    apt-get -y install gcc wget make git=$GIT_VER > /dev/null
 elif [ -f /etc/redhat-release ]; then
     echo "Updating yum"
-    yum -y -q update
+    yum -q -y update
     echo "Installing gcc wget make git"
-    yum -y -q install make git gcc wget
+    yum -y install make git gcc wget > /dev/null
 fi
 
 wget https://ftp.gnu.org/gnu/bash/bash-$BASH_VER.tar.gz
