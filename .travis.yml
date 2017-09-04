@@ -1,4 +1,3 @@
-
 services:
   - docker
 
@@ -8,13 +7,18 @@ before_install:
 - git config --global user.email "awslabs@amazon.com"
 - git config --global user.name "Awslabs"
 
+env:
+
 matrix:
   include:
-  - env: GIT_VER=1.9.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  - env: GIT_VER=1.8.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
   - env: GIT_VER=2.0.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
-  allow_failures:
-  - env: GIT_VER=1.9.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  - env: GIT_VER=1.8.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
   - env: GIT_VER=2.0.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  allow_failures:
+  - env: GIT_VER=1.8.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  - env: GIT_VER=2.0.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  fast_finish: true
 
 script:
 - docker run -it  -v $PWD/docker-run.sh:/run.sh -e "GIT_VER=$GIT_VER" -e "BASH_VER=$BASH_VER" $DOCKER_BUILD_IMAGE /run.sh
