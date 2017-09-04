@@ -14,7 +14,8 @@ elif [ -f /etc/redhat-release ]; then
     echo "Updating yum"
     yum -q -y update
     echo "Installing make gcc wget epel-release dnf"
-    yum -y install make gcc wget epel-release dnf > /dev/null
+    yum -y install make gcc wget epel-release > /dev/null
+    yum -y install dnf > /dev/null
     echo "Installing dh-autoreconf curl-devel expat-devel gettext-devel openssl-devel perl-devel zlib-devel"
     dnf -y install dh-autoreconf curl-devel expat-devel gettext-devel openssl-devel perl-devel zlib-devel > /dev/null
     ln -s /usr/bin/db2x_docbook2texi /usr/bin/docbook2x-texi
