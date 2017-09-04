@@ -10,10 +10,10 @@ before_install:
 
 matrix:
   include:
-  - env: GIT_VER=1.8.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  - env: GIT_VER=1.9.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
   - env: GIT_VER=2.0.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
   allow_failures:
-  - env: GIT_VER=1.8.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  - env: GIT_VER=1.9.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
   - env: GIT_VER=2.0.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
 
 script:
