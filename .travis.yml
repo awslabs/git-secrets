@@ -4,16 +4,23 @@ services:
 language: bash
 
 before_install:
-- git config --global user.email "you@example.com"
-- git config --global user.name "Your Name"
+- git config --global user.email "awslabs@amazon.com"
+- git config --global user.name "Awslabs"
+
+matrix:
+  include:
+  - env: BASH_VER=4.0
+  - env: GIT_VER=1:2.7.4-0ubuntu1
+    env: BASH_VER=4.0
+  - env: GIT_VER=1:1.9.1-1ubuntu0.6
+    env: BASH_VER=4.0
+
+  allow_failures:
+  - env: GIT_VER=1:2.7.4-0ubuntu1
+    env: BASH_VER=3.0
+  - env: GIT_VER=1:1.9.1-1ubuntu0.6
+    env: BASH_VER=3.0
 
 script:
 - make test
-- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:2.7.4-0ubuntu1' -e 'BASH_VER=4.0' ubuntu /run.sh
-- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:1.9.1-1ubuntu0.6' -e 'BASH_VER=4.0' ubuntu:14.04 /run.sh
-- docker run -it -v $PWD/docker-run.sh:/run.sh -e 'BASH_VER=4.0' centos /run.sh
-- docker run -it -v $PWD/docker-run.sh:/run.sh -e 'BASH_VER=4.0' centos /run.sh
-
-allow_failures:
-- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:2.7.4-0ubuntu1' -e 'BASH_VER=3.0' ubuntu /run.sh
-- docker run -it  -v $PWD/docker-run.sh:/run.sh -e 'GIT_VER=1:1.9.1-1ubuntu0.6' -e 'BASH_VER=3.0' ubuntu:14.04 /run.sh
+- docker run -it  -v $PWD/docker-run.sh:/run.sh ubuntu /run.sh
