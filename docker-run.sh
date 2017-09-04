@@ -2,11 +2,17 @@
 
 set -e
 
+GIT_CMD="git"
+
+if [ -z ${GIT_VER+x} ]; then
+    GIT_CMD='git='$GIT_VER
+fi
+
 if [ -f /etc/debian_version ]; then
     echo "Updating apt-get"
     apt-get -qq -y update
-    echo "Installing gcc wget make git=$GIT_VER"
-    apt-get -y install gcc wget make git=$GIT_VER > /dev/null
+    echo "Installing gcc wget make $GIT_CMD"
+    apt-get -y install gcc wget make $GIT_CMD > /dev/null
 elif [ -f /etc/redhat-release ]; then
     echo "Updating yum"
     yum -q -y update
@@ -25,6 +31,7 @@ cd bash-$BASH_VER
 make -s
 make -s install
 
+cd /
 # Clone git-secrets, install and run tests.
 git clone https://github.com/awslabs/git-secrets.git
 cd git-secrets
