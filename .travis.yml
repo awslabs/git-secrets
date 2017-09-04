@@ -19,4 +19,4 @@ matrix:
 
 script:
 - make test
-- docker run -it  -v $PWD/docker-run.sh:/run.sh ubuntu /run.sh
+- docker run -it  -v $PWD/docker-run.sh:/run.sh -e "GIT_VER=$GIT_VER" -e "BASH_VER=$BASH_VER" ubuntu /run.sh
