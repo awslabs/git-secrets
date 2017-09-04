@@ -2,12 +2,6 @@
 
 set -e
 
-if [ -z ${GIT_VER+x} ]; then
-    GIT_CMD="git"
-else
-    GIT_CMD="git=$GIT_VER"
-fi
-
 if [ -f /etc/debian_version ]; then
     echo "Updating apt-get"
     apt-get -qq -y update
