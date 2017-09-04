@@ -17,5 +17,4 @@ matrix:
   - env: GIT_VER=1:1.9.1-1ubuntu0.6 BASH_VER=3.0
 
 script:
-- make test
 - docker run -it  -v $PWD/docker-run.sh:/run.sh -e "GIT_VER=$GIT_VER" -e "BASH_VER=$BASH_VER" ubuntu /run.sh
