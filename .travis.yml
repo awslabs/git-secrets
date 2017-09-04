@@ -1,3 +1,4 @@
+
 services:
   - docker
 
@@ -9,12 +10,11 @@ before_install:
 
 matrix:
   include:
-  - env: BASH_VER=4.0
-  - env: GIT_VER=1:2.7.4-0ubuntu1 BASH_VER=4.0
-  - env: GIT_VER=1:1.9.1-1ubuntu0.6 BASH_VER=4.0
+  - env: GIT_VER=1.0.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  - env: GIT_VER=2.0.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
   allow_failures:
-  - env: GIT_VER=1:2.7.4-0ubuntu1 BASH_VER=3.0
-  - env: GIT_VER=1:1.9.1-1ubuntu0.6 BASH_VER=3.0
+  - env: GIT_VER=1.0.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
+  - env: GIT_VER=2.0.0 BASH_VER=3.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
 
 script:
-- docker run -it  -v $PWD/docker-run.sh:/run.sh -e "GIT_VER=$GIT_VER" -e "BASH_VER=$BASH_VER" ubuntu:14.04 /run.sh
+- docker run -it  -v $PWD/docker-run.sh:/run.sh -e "GIT_VER=$GIT_VER" -e "BASH_VER=$BASH_VER" $DOCKER_BUILD_IMAGE /run.sh
