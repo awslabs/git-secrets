@@ -12,7 +12,6 @@ matrix:
   - env: BASH_VER=4.0
   - env: GIT_VER=1:2.7.4-0ubuntu1 BASH_VER=4.0
   - env: GIT_VER=1:1.9.1-1ubuntu0.6 BASH_VER=4.0
-
   allow_failures:
   - env: GIT_VER=1:2.7.4-0ubuntu1 BASH_VER=3.0
   - env: GIT_VER=1:1.9.1-1ubuntu0.6 BASH_VER=3.0
