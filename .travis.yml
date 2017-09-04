@@ -7,8 +7,6 @@ before_install:
 - git config --global user.email "awslabs@amazon.com"
 - git config --global user.name "Awslabs"
 
-env:
-
 matrix:
   include:
   - env: GIT_VER=1.8.0 BASH_VER=4.0 DOCKER_BUILD_IMAGE=ubuntu:14.04
