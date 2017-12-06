@@ -108,7 +108,7 @@ Each of these options must appear first on the command line.
     in ``~/.aws/credentials`` are not found in any commit. The following
     checks are added:
 
-    - AWS Access Key ID via ``[A-Z0-9]{20}``
+    - AWS Access Key ID via ``AKAI[A-Z0-9]{16}``
     - AWS Secret Access Key assignments via ":" or "=" surrounded by optional
       quotes
     - AWS account ID assignments via ":" or "=" surrounded by optional quotes
@@ -283,11 +283,11 @@ Examples
 
 Adds a prohibited pattern to the current repo::
 
-    git secrets --add '[A-Z0-9]{20}'
+    git secrets --add 'AKAI[A-Z0-9]{16}'
 
 Adds a prohibited pattern to the global git config::
 
-    git secrets --add --global '[A-Z0-9]{20}'
+    git secrets --add --global 'AKAI[A-Z0-9]{16}'
 
 Adds a string that is scanned for literally (``+`` is escaped)::
 
@@ -362,7 +362,7 @@ regular expression patterns as false positives using the following command:
 
     git secrets --add --allowed 'my regex pattern'
 
-You can also add regular expressions patterns to filter false positives to a 
+You can also add regular expressions patterns to filter false positives to a
 .gitallowed file located in the repository's root directory. Lines starting
 with # are skipped (comment line) and empty lines are also skipped.
 

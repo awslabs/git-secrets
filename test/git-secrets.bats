@@ -278,7 +278,7 @@ load test_helper
   repo_run git-secrets --register-aws
   git config --local --get secrets.providers
   repo_run git-secrets --list
-  echo "$output" | grep -F '[A-Z0-9]{20}'
+  echo "$output" | grep -F 'AKAI[A-Z0-9]{16}'
   echo "$output" | grep "AKIAIOSFODNN7EXAMPLE"
   echo "$output" | grep "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 }
