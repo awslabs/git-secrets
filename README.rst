@@ -77,6 +77,45 @@ on each commit::
 
 
 
+
+Advanced configuration
+~~~~~~~~~~~~~~~~~~~~~~
+
+Add a configuration template if you want to add hooks to all repositories you
+initialize or clone in the future.
+
+::
+
+    git secrets --register-aws --global
+
+
+Add hooks to all your local repositories.
+
+::
+
+    git secrets --install ~/.git-templates/git-secrets
+    git config --global init.templateDir ~/.git-templates/git-secrets
+
+
+Add custom providers to scan for security credentials.
+
+::
+
+    git secrets --add-provider -- cat /path/to/secret/file/patterns
+
+
+Before making public a repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+With git-secrets is also possible to scan a repository including all revisions:
+
+::
+
+    git secrets --scan-history
+
+
+
+
 Options
 -------
 
