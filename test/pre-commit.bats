@@ -41,7 +41,7 @@ load test_helper
   [ $status -eq 0 ]
   # Ensure deleted files are filtered out of the grep
   rm $TEST_REPO/data.txt
-  echo 'aaa' $TEST_REPO/data_2.txt
+  echo 'aaa' > $TEST_REPO/data_2.txt
   run git add -A
   run git commit -m 'This is also fine'
   [ $status -eq 0 ]
