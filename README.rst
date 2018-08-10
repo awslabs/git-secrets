@@ -35,15 +35,29 @@ Installing git-secrets
 ~~~~~~~~~~~~~~~~~~~~~~
 
 ``git-secrets`` must be placed somewhere in your PATH so that it is picked up
-by ``git`` when running ``git secrets``. You can use ``install`` target of the
-provided Makefile to install ``git secrets`` and the man page. You can
-customize the install path using the PREFIX and MANPREFIX variables.
+by ``git`` when running ``git secrets``. 
+
+**\*nix (Linux/OSX)**
+
+You can use ``install`` target of the provided Makefile to install 
+``git secrets`` and the man page. You can customize the install path
+using the PREFIX and MANPREFIX variables.
 
 ::
 
     make install
 
-Or, installing with Homebrew (for OS X users).
+**Windows**
+
+Run the provided install.ps1 powershell script. This will copy the needed files
+to an installation directory ("%USERPROFILE%/.git-secrets" by default) and add
+the directory to the current user PATH.
+
+::
+
+    PS > ./install.ps1
+
+**Homebrew (for OS X users).**
 
 ::
 

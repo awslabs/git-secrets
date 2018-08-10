@@ -1,0 +1,10 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Force the bash scripts to be checked out with LF line endings.
+git-secrets text eol=lf
+git-secrets.1 text eol=lf
+test/bats/bin/* text eol=lf
+test/bats/libexec/* text eol=lf
+*.bats text eol=lf
+*.bash text eol=lf
