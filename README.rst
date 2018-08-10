@@ -34,6 +34,9 @@ rejected.
 Installing git-secrets
 ~~~~~~~~~~~~~~~~~~~~~~
 
+Linux
+^^^^^
+
 ``git-secrets`` must be placed somewhere in your PATH so that it is picked up
 by ``git`` when running ``git secrets``. 
 
@@ -46,6 +49,8 @@ using the PREFIX and MANPREFIX variables.
 ::
 
     make install
+Mac
+^^^
 
 **Windows**
 
@@ -62,6 +67,34 @@ the directory to the current user PATH.
 ::
 
     brew install git-secrets
+
+Windows 10
+^^^^^^^^^^	
+For Windows 10 users, you can use Powershell or git-bash, but you need to add the repository to 
+your path before you can use the use the git secrets command.
+
+1. Open **File explorer** and locate path to the git-secrets repository
+	example: C:\Users\Username\GitHub\git-secrets
+	
+2. Copy the string for this Path
+
+3. From the Windows Start Menu search for **Edit Environment variables for your account**
+
+4. Under User variables select **Path**, then **Edit**
+
+5. Select **New**, then paste the Path to your cloned git-secrets Github repo.
+
+6. Select **OK** to close this window, then **OK** again to close the environment variables window.
+
+..warning
+	
+	If you opened Powershell or Git Bash before you added git-secrets to your path, you will need to close and reopen the window.
+
+
+Adding git-secrets to your repo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After installing git-secrets, use the command line to navigate to the git repo where you want to install git secrets. 
 
 .. warning::
 
