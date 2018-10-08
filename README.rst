@@ -32,14 +32,15 @@ rejected.
 
 
 Installing git-secrets
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 ``git-secrets`` must be placed somewhere in your PATH so that it is picked up
-by ``git`` when running ``git secrets``. 
+by ``git`` when running ``git secrets``.
 
-**\*nix (Linux/OSX)**
+\*nix (Linux/OSX)
+~~~~~~~~~~~~~~~~~
 
-You can use ``install`` target of the provided Makefile to install 
+You can use the ``install`` target of the provided Makefile to install
 ``git secrets`` and the man page. You can customize the install path
 using the PREFIX and MANPREFIX variables.
 
@@ -47,17 +48,19 @@ using the PREFIX and MANPREFIX variables.
 
     make install
 
-**Windows**
+Windows
+~~~~~~~
 
-Run the provided install.ps1 powershell script. This will copy the needed files
-to an installation directory ("%USERPROFILE%/.git-secrets" by default) and add
-the directory to the current user PATH.
+Run the provided ``install.ps1`` powershell script. This will copy the needed files
+to an installation directory (``%USERPROFILE%/.git-secrets`` by default) and add
+the directory to the current user ``PATH``.
 
 ::
 
     PS > ./install.ps1
 
-**Homebrew (for OS X users).**
+Homebrew (for macOS users)
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -76,10 +79,8 @@ on each commit::
     git secrets --register-aws
 
 
-
-
 Advanced configuration
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 Add a configuration template if you want to add hooks to all repositories you
 initialize or clone in the future.
@@ -105,15 +106,13 @@ Add custom providers to scan for security credentials.
 
 
 Before making public a repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------
 
 With git-secrets is also possible to scan a repository including all revisions:
 
 ::
 
     git secrets --scan-history
-
-
 
 
 Options
@@ -125,14 +124,14 @@ Operation Modes
 Each of these options must appear first on the command line.
 
 ``--install``
-    Installs hooks for a repository. Once the hooks are installed for a git
-    repository, commits and non-ff merges for that repository will be prevented
+    Installs git hooks for a repository. Once the hooks are installed for a git
+    repository, commits and non-fast-forward merges for that repository will be prevented
     from committing secrets.
 
 ``--scan``
     Scans one or more files for secrets. When a file contains a secret, the
     matched text from the file being scanned will be written to stdout and the
-    script will exit with a non-zero RC. Each matched line will be written with
+    script will exit with a non-zero status. Each matched line will be written with
     the name of the file that matched, a colon, the line number that matched,
     a colon, and then the line of text that matched. If no files are provided,
     all files returned by ``git ls-files`` are scanned.
@@ -140,12 +139,12 @@ Each of these options must appear first on the command line.
 ``--scan-history``
     Scans repository including all revisions. When a file contains a secret, the
     matched text from the file being scanned will be written to stdout and the
-    script will exit with a non-zero RC. Each matched line will be written with
+    script will exit with a non-zero status. Each matched line will be written with
     the name of the file that matched, a colon, the line number that matched,
     a colon, and then the line of text that matched.
 
 ``--list``
-    Lists the git-secrets configuration for the current repo or in the global
+    Lists the ``git-secrets`` configuration for the current repo or in the global
     git config.
 
 ``--add``
@@ -153,7 +152,7 @@ Each of these options must appear first on the command line.
 
 ``--add-provider``
     Registers a secret provider. Secret providers are executables that when
-    invoked outputs prohibited patterns that ``git-secrets`` should treat as
+    invoked output prohibited patterns that ``git-secrets`` should treat as
     prohibited.
 
 ``--register-aws``
@@ -161,13 +160,13 @@ Each of these options must appear first on the command line.
     in ``~/.aws/credentials`` are not found in any commit. The following
     checks are added:
 
-    - AWS Access Key ID via ``[A-Z0-9]{20}``
+    - AWS Access Key IDs (strings matching ``[A-Z0-9]{20}``)
     - AWS Secret Access Key assignments via ":" or "=" surrounded by optional
       quotes
     - AWS account ID assignments via ":" or "=" surrounded by optional quotes
     - Allowed patterns for example AWS keys (``AKIAIOSFODNN7EXAMPLE`` and
       ``wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY``)
-    - Enables using ``~/.aws/credentials`` to scan for known credentials.
+    - Known credentials from ``~/.aws/credentials``
 
     .. note::
 
@@ -179,7 +178,7 @@ Each of these options must appear first on the command line.
 
 ``--aws-provider``
     Secret provider that outputs credentials found in an INI file. You can
-    optionally provide the path to an ini file.
+    optionally provide the path to an INI file.
 
 
 Options for ``--install``
@@ -192,17 +191,17 @@ Options for ``--install``
     When provided, installs git hooks to the given directory. The current
     directory is assumed if ``<target-directory>`` is not provided.
 
-    If the provided ``<target-directory>`` is not in a Git repository, the
+    If the provided ``<target-directory>`` is not in a git repository, the
     directory will be created and hooks will be placed in
-    ``<target-directory>/hooks``. This can be useful for creating Git template
+    ``<target-directory>/hooks``. This can be useful for creating git template
     directories using with ``git init --template <target-directory>``.
 
     You can run ``git init`` on a repository that has already been initialized.
     From the `git init documentation <https://git-scm.com/docs/git-init>`_:
 
-        From the git documentation: Running git init in an existing repository
+        From the git documentation: Running ``git init`` in an existing repository
         is safe. It will not overwrite things that are already there. The
-        primary reason for rerunning git init is to pick up newly added
+        primary reason for rerunning ``git init`` is to pick up newly added
         templates (or to move the repository to another place if
         ``--separate-git-dir`` is given).
 
@@ -219,7 +218,7 @@ Options for ``--install``
     .. note::
 
         Git only allows a single script to be executed per hook. If the
-        repository contains Debian style subdirectories like ``pre-commit.d``
+        repository contains Debian-style subdirectories like ``pre-commit.d``
         and ``commit-msg.d``, then the git hooks will be installed into these
         directories, which assumes that you've configured the corresponding
         hooks to execute all of the scripts found in these directories. If
@@ -265,7 +264,7 @@ Options for ``--scan``
     Searches blobs registered in the index file.
 
 ``--no-index``
-    Searches files in the current directory that is not managed by Git.
+    Searches files in the current directory that is not managed by git.
 
 ``--untracked``
     In addition to searching in the tracked files in the working tree,
@@ -393,18 +392,18 @@ Cats secrets out of a file::
 Defining prohibited patterns
 ----------------------------
 
-egrep compatible regular expressions are used to determine if a commit or
+``egrep``-compatible regular expressions are used to determine if a commit or
 commit message contains any prohibited patterns. These regular expressions are
 defined using the ``git config`` command. It is important to note that
 different systems use different versions of egrep. For example, when running on
-OS X, you will use a different version of egrep than when running on something
+macOS, you will use a different version of ``egrep`` than when running on something
 like Ubuntu (BSD vs GNU).
 
 You can add prohibited regular expression patterns to your git config using
 ``git secrets --add <pattern>``.
 
 
-Ignoring false-positives
+Ignoring false positives
 ------------------------
 
 Sometimes a regular expression might match false positives. For example, git
@@ -415,13 +414,13 @@ regular expression patterns as false positives using the following command:
 
     git secrets --add --allowed 'my regex pattern'
 
-You can also add regular expressions patterns to filter false positives to a 
-.gitallowed file located in the repository's root directory. Lines starting
-with # are skipped (comment line) and empty lines are also skipped.
+You can also add regular expressions patterns to filter false positives to a
+``.gitallowed`` file located in the repository's root directory. Lines starting
+with ``#`` are skipped (comment line) and empty lines are also skipped.
 
 First, git-secrets will extract all lines from a file that contain a prohibited
 match. Included in the matched results will be the full path to the name of
-the file that was matched, followed ':', followed by the line number that was
+the file that was matched, followed by ':', followed by the line number that was
 matched, followed by the entire line from the file that was matched by a secret
 pattern. Then, if you've defined allowed regular expressions, git-secrets will
 check to see if all of the matched lines match at least one of your registered
@@ -509,7 +508,7 @@ like::
     git secrets --scan /tmp/example && echo $?
     # Outputs: 0
 
-Alternatively, you could whitelist a specific line number of a file if that
+Alternatively, you could allow a specific line number of a file if that
 line is unlikely to change using something like the following:
 
 ::
@@ -526,7 +525,7 @@ included in the subject text that allowed patterns are matched against.
 Skipping validation
 -------------------
 
-Use the ``--no-verify`` option in the event of a false-positive match in a
+Use the ``--no-verify`` option in the event of a false positive match in a
 commit, merge, or commit message. This will skip the execution of the
 git hook and allow you to make the commit or merge.
 
@@ -534,7 +533,7 @@ git hook and allow you to make the commit or merge.
 About
 ------
 
-- Author: Michael Dowling <https://github.com/mtdowling>
+- Author: `Michael Dowling <https://github.com/mtdowling>`_
 - Issue tracker: This project's source code and issue tracker can be found at
   `https://github.com/awslabs/git-secrets <https://github.com/awslabs/git-secrets>`_
 - Special thanks to Adrian Vatchinsky and Ari Juels of Cornell University for
