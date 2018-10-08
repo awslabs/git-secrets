@@ -38,7 +38,7 @@ Installing git-secrets
 ``git-secrets`` must be placed somewhere in your PATH so that it is picked up
 by ``git`` when running ``git secrets``.
 
-\*nix (Linux/OSX)
+\*nix (Linux/macOS)
 ~~~~~~~~~~~~~~~~~
 
 You can use the ``install`` target of the provided Makefile to install
