@@ -35,11 +35,11 @@ Installing git-secrets
 ~~~~~~~~~~~~~~~~~~~~~~
 
 ``git-secrets`` must be placed somewhere in your PATH so that it is picked up
-by ``git`` when running ``git secrets``. 
+by ``git`` when running ``git secrets``.
 
 **\*nix (Linux/OSX)**
 
-You can use ``install`` target of the provided Makefile to install 
+You can use ``install`` target of the provided Makefile to install
 ``git secrets`` and the man page. You can customize the install path
 using the PREFIX and MANPREFIX variables.
 
@@ -161,7 +161,7 @@ Each of these options must appear first on the command line.
     in ``~/.aws/credentials`` are not found in any commit. The following
     checks are added:
 
-    - AWS Access Key ID via ``[A-Z0-9]{20}``
+    - AWS Access Key ID via ``(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}``
     - AWS Secret Access Key assignments via ":" or "=" surrounded by optional
       quotes
     - AWS account ID assignments via ":" or "=" surrounded by optional quotes
@@ -415,7 +415,7 @@ regular expression patterns as false positives using the following command:
 
     git secrets --add --allowed 'my regex pattern'
 
-You can also add regular expressions patterns to filter false positives to a 
+You can also add regular expressions patterns to filter false positives to a
 .gitallowed file located in the repository's root directory. Lines starting
 with # are skipped (comment line) and empty lines are also skipped.
 
