@@ -41,9 +41,8 @@ by ``git`` when running ``git secrets``.
 \*nix (Linux/macOS)
 ~~~~~~~~~~~~~~~~~
 
-You can use the ``install`` target of the provided Makefile to install
-``git secrets`` and the man page. You can customize the install path
-using the PREFIX and MANPREFIX variables.
+You can use the ``install`` target of the provided Makefile to install ``git secrets`` and the man page.
+You can customize the install path using the PREFIX and MANPREFIX variables.
 
 ::
 
@@ -161,7 +160,7 @@ Each of these options must appear first on the command line.
     in ``~/.aws/credentials`` are not found in any commit. The following
     checks are added:
 
-    - AWS Access Key IDs (strings matching ``[A-Z0-9]{20}``)
+    - AWS Access Key IDs via ``(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}``
     - AWS Secret Access Key assignments via ":" or "=" surrounded by optional
       quotes
     - AWS account ID assignments via ":" or "=" surrounded by optional quotes
