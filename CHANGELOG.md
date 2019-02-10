@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.3.0 - 2019-02-10
+
+* Empty provider output is now excluded
+  (https://github.com/awslabs/git-secrets/issues/34)
+* Spaces are now supported in git exec path, making more Windows
+  paths execute properly.
+* Patterns with newlines and carriage returns are now loaded properly.
+* Patterns that contain only "\n" are now ignored.
+* Various Bash 4 fixes (https://github.com/awslabs/git-secrets/issues/66).
+* Make IAM key scanning much more targeted.
+
 ## 1.2.1 - 2016-06-27
 
 * Fixed an issue where secret provider commands were causing "command not
