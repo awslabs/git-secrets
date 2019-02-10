@@ -9,7 +9,7 @@ help:
 
 # We use bats for testing: https://github.com/sstephenson/bats
 test:
-	test/bats/bin/bats test/
+	LANG=C test/bats/bin/bats test/
 
 # The man page is completely derived from README.rst. Edits to
 # README.rst require a rebuild of the man page.
