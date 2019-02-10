@@ -2,8 +2,9 @@
 git-secrets
 ===========
 
-Prevents you from committing passwords and other sensitive information to a
-git repository.
+-------------------------------------------------------------------------------------------
+Prevents you from committing passwords and other sensitive information to a git repository.
+-------------------------------------------------------------------------------------------
 
 .. contents:: :depth: 2
 
