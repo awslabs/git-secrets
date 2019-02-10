@@ -518,7 +518,7 @@ line is unlikely to change using something like the following:
     # Outputs: 0
 
 Keep this in mind when creating allowed patterns to ensure that your allowed
-patterns are not inadvertantly matched due to the fact that the filename is
+patterns are not inadvertently matched due to the fact that the filename is
 included in the subject text that allowed patterns are matched against.
 
 
