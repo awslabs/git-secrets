@@ -40,7 +40,7 @@ Installing git-secrets
 by ``git`` when running ``git secrets``.
 
 \*nix (Linux/macOS)
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 You can use the ``install`` target of the provided Makefile to install ``git secrets`` and the man page.
 You can customize the install path using the PREFIX and MANPREFIX variables.
