@@ -149,9 +149,9 @@ load test_helper
 
 @test "installs hooks for repo with Debian style directories" {
   setup_bad_repo
-  mkdir $TEST_REPO/.git/hooks/pre-commit.d
-  mkdir $TEST_REPO/.git/hooks/prepare-commit-msg.d
-  mkdir $TEST_REPO/.git/hooks/commit-msg.d
+  mkdir -p $TEST_REPO/.git/hooks/pre-commit.d
+  mkdir -p $TEST_REPO/.git/hooks/prepare-commit-msg.d
+  mkdir -p $TEST_REPO/.git/hooks/commit-msg.d
   run git-secrets --install $TEST_REPO
   [ -f $TEST_REPO/.git/hooks/pre-commit.d/git-secrets ]
   [ -f $TEST_REPO/.git/hooks/prepare-commit-msg.d/git-secrets ]
