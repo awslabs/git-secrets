@@ -359,3 +359,8 @@ load test_helper
   repo_run git-secrets --list --untracked
   [ $status -eq 1 ]
 }
+
+@test "--version is not nil" {
+  repo_run git-secrets --version
+  [[ -n $output ]]
+}
