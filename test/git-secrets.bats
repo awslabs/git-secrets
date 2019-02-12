@@ -364,3 +364,8 @@ load test_helper
   repo_run git-secrets --version
   [[ -n $output ]]
 }
+
+@test "--version is not 'NOT SET'" {
+  repo_run git-secrets --version
+  [[ $output != "NOT SET" ]]
+}
