@@ -12,8 +12,8 @@ else
 }
 
 Write-Host "Copying files."
-Copy-Item ./git-secrets -Destination $InstallationDirectory -Force
-Copy-Item ./git-secrets.1 -Destination $InstallationDirectory -Force
+Copy-Item .\git-secrets -Destination $InstallationDirectory -Force
+Copy-Item .\git-secrets.1 -Destination $InstallationDirectory -Force
 
 Write-Host "Checking if directory already exists in Path..."
 $currentPath = [Environment]::GetEnvironmentVariable("PATH", "User")
