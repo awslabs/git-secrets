@@ -359,3 +359,21 @@ load test_helper
   repo_run git-secrets --list --untracked
   [ $status -eq 1 ]
 }
+
+@test "Require exact match for pattern with spaces NOT triggered" {
+  cd $TEST_REPO
+  echo 'WHITESPACE' > $TEST_REPO/ok.txt
+  git add -A
+  git commit -m "Testing pattern minus all of the spacess"
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+}
+
+@test "Require exact match for pattern with spaces triggered" {
+  cd $TEST_REPO
+  echo 'WHITE SPACE' > $TEST_REPO/ok.txt
+  git add -A
+  git commit -m "Testing pattern with all of the spaces"
+  repo_run git-secrets --scan
+  [ $status -eq 1 ]
+}
