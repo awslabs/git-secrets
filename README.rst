@@ -397,7 +397,7 @@ Options for ``--remove``
 ~~~~~~~~~~~~~~~~~~~~~
 
 ``--global``
-    Adds patterns to the global git config
+    Removes patterns from the global git config
 
 ``-u, --deleteliteral``
     Removes a literal pattern added with the --add command.
