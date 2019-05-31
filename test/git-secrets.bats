@@ -359,3 +359,24 @@ load test_helper
   repo_run git-secrets --list --untracked
   [ $status -eq 1 ]
 }
+
+@test "-d can only be used with --remove" {
+  repo_run git-secrets --list -d
+  [ $status -eq 1 ]
+}
+
+@test "-u can only be used with --remove" {
+  repo_run git-secrets --list -u
+  [ $status -eq 1 ]
+}
+
+@test "--remove removes added items" {
+  repo_run git-secrets --add "test"
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  repo_run git-secrets --remove "test"
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+}
