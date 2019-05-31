@@ -183,7 +183,7 @@ Each of these options must appear first on the command line.
     optionally provide the path to an INI file.
 
 ``--remove``
-    Removes a pattern or literal added as allowed or prohibited
+    Removes a pattern or literal from the git config
 
 
 Options for ``--install``
@@ -400,13 +400,13 @@ Options for ``--remove``
     Removes patterns from the global git config
 
 ``-u, --deleteliteral``
-    Removes a literal pattern added with the --add command.
+    Removes a literal pattern added with the --add command from the git config
 
 ``-d, --deleteallowed``
-    Deletes an allowed pattern
+    Removes an allowed pattern from the git config
 
 ``<pattern>``
-    The regex pattern to search.
+    The regex pattern to remove.
 
 
 Examples
