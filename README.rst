@@ -109,7 +109,7 @@ Add custom providers to scan for security credentials.
 Before making public a repository
 ---------------------------------
 
-With git-secrets is also possible to scan a repository including all revisions:
+With git-secrets it is also possible to scan a repository including all revisions:
 
 ::
 
