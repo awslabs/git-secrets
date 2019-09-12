@@ -531,6 +531,15 @@ commit, merge, or commit message. This will skip the execution of the
 git hook and allow you to make the commit or merge.
 
 
+Customizing the failure message
+-------------------
+
+Use `git config --add secrets.failureMessage <message>` to set a custom message
+to be output when a secret is found. If this configuration option is not set,
+a default message instructing users of possible mitigation strategies will
+be output.
+
+
 About
 ------
 

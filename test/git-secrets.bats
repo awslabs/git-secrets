@@ -109,6 +109,25 @@ load test_helper
   [ "${lines[1]}" == "$file:2:this is forbidden right?" ]
 }
 
+@test "Prohibited matches contains standard error message" {
+  file="$TEST_REPO/test.txt"
+  echo '@todo stuff' > $file
+  repo_run git-secrets --scan $file
+  [ $status -eq 1 ]
+  [ "${lines[0]}" == "$file:1:@todo stuff" ]
+  echo "$output" | grep "Matched one or more prohibited patterns"
+}
+
+@test "Prohibited matches contains custom error message when set" {
+  git config --add secrets.failureMessage "no secrets please"
+  file="$TEST_REPO/test.txt"
+  echo '@todo stuff' > $file
+  repo_run git-secrets --scan $file
+  [ $status -eq 1 ]
+  [ "${lines[0]}" == "$file:1:@todo stuff" ]
+  echo "$output" | grep "no secrets please"
+}
+
 @test "Only matches on word boundaries" {
   file="$TEST_REPO/test.txt"
   # Note that the following does not match as it is not a word.
