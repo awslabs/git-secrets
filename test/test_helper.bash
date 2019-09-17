@@ -33,6 +33,7 @@ setup_repo() {
   git init
   git config --local --add secrets.patterns '@todo'
   git config --local --add secrets.patterns 'forbidden|me'
+  git config --local --add secrets.patterns 'WHITE SPACE'
   git config --local --add secrets.patterns '#hash'
   git config --local user.email "you@example.com"
   git config --local user.name "Your Name"
