@@ -328,7 +328,7 @@ Options for ``--add``
     used to filter our false positives.
 
 ``<pattern>``
-    The regex pattern to search.
+    The regex pattern to search. Supports Perl Compatible Regular Expressions.
 
 
 Examples
