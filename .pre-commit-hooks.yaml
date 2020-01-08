@@ -3,3 +3,6 @@
     description: git-secrets scans commits, commit messages, and --no-ff merges to prevent adding secrets into your git repositories.
     entry: 'git-secrets --pre_commit_hook'
     language: script
+
+
+
