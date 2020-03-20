@@ -6,6 +6,12 @@ git-secrets
 Prevents you from committing passwords and other sensitive information to a git repository.
 -------------------------------------------------------------------------------------------
 
+-------------------------------------------------------------------------------------------
+DISCLAIMER - MUST READ
+--------------------
+This is a fork of a public repository and is intended to be public-facing. Do not put any internal-only or sensitive information into any issues, pull requests, etc.
+-------------------------------------------------------------------------------------------
+
 .. contents:: :depth: 2
 
 Synopsis
