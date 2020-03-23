@@ -311,6 +311,14 @@ load test_helper
   [ $status -eq 0 ]
 }
 
+@test "-q removes error message from output" {
+  setup_bad_repo
+  repo_run git-secrets --scan
+  echo "$output" | grep "ERROR"
+  repo_run git-secrets --scan -q
+  [[ ! $output =~ "ERROR" ]]
+}
+
 @test "--recursive cannot be used with SCAN_*" {
   repo_run git-secrets --scan -r --cached
   [ $status -eq 1 ]
@@ -357,5 +365,10 @@ load test_helper
 
 @test "--untracked can only be used with --scan" {
   repo_run git-secrets --list --untracked
+  [ $status -eq 1 ]
+}
+
+@test "-q can only be used with --scan" {
+  repo_run git-secrets --list -q
   [ $status -eq 1 ]
 }

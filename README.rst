@@ -13,7 +13,7 @@ Synopsis
 
 ::
 
-    git secrets --scan [-r|--recursive] [--cached] [--no-index] [--untracked] [<files>...]
+    git secrets --scan [-r|--recursive] [-q|--quiet] [--cached] [--no-index] [--untracked] [<files>...]
     git secrets --scan-history
     git secrets --install [-f|--force] [<target-directory>]
     git secrets --list [--global]
@@ -260,6 +260,9 @@ Options for ``--scan``
 
     ``-r`` cannot be used alongside ``--cached``, ``--no-index``, or
     ``--untracked``.
+
+``-q, --quiet``
+    Shows results but removes error message from output.
 
 ``--cached``
     Searches blobs registered in the index file.
