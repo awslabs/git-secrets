@@ -544,3 +544,5 @@ About
   providing suggestions and feedback.
 
 Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+(added Smarsh/homebrew-git-secrets to allow for homebrew install)
