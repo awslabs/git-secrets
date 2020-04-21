@@ -403,6 +403,9 @@ like Ubuntu (BSD vs GNU).
 You can add prohibited regular expression patterns to your git config using
 ``git secrets --add <pattern>``.
 
+You can also add prohibited regular expressions patterns to a
+``.gitprohibited`` file located in the repository's root directory. Lines starting
+with ``#`` are skipped (comment line) and empty lines are also skipped.
 
 Ignoring false positives
 ------------------------
