@@ -60,6 +60,13 @@ the directory to the current user ``PATH``.
 
     PS > ./install.ps1
 
+Debian / Ubuntu Linux
+~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    sudo apt install git-secrets
+
 Homebrew (for macOS users)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
