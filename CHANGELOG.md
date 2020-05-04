@@ -3,7 +3,7 @@
 ## 1.3.0 - 2019-02-10
 
 - Empty provider output is now excluded
-  (https://github.com/awslabs/git-secrets/issues/34)
+  <https://github.com/awslabs/git-secrets/issues/34>
 - Spaces are now supported in git exec path, making more Windows
   paths execute properly.
 - Patterns with newlines and carriage returns are now loaded properly.
