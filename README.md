@@ -1,8 +1,8 @@
 # Git Secrets
 
-## Prevents you from committing passwords and other sensitive information to a git repository.
+Prevents you from committing passwords and other sensitive information to a git repository.
 
-### Synopsis
+## Synopsis
 
     git secrets --scan [-r|--recursive] [--cached] [--no-index] [--untracked] [<files>...]
     git secrets --scan-history
@@ -13,27 +13,27 @@
     git secrets --register-aws [--global]
     git secrets --aws-provider [<credentials-file>]
 
-### Description
+## About
 
 `git-secrets` scans commits, commit messages, and `--no-ff` merges to prevent adding secrets into your git repositories. If a commit, commit message, or any commit in a `--no-ff` merge history matches one of your configured prohibited regular expression patterns, then the commit is rejected.
 
-### Installing git-secrets
+## Installation
 
 `git-secrets` must be placed somewhere in your PATH so that it is picked up by `git` when running `git secrets`.
 
-#### \*nix (Linux/macOS)
+### \*nix (Linux/macOS)
 
 You can use the `install` target of the provided Makefile to install `git secrets` and the man page. You can customize the install path using the PREFIX and MANPREFIX variables.
 
     make install
 
-#### Windows
+### Windows
 
 Run the provided `install.ps1` powershell script. This will copy the needed files to an installation directory (`%USERPROFILE%/.git-secrets` by default) and add the directory to the current user `PATH`.
 
     PS > ./install.ps1
 
-#### Homebrew (for macOS users)
+### Homebrew (for macOS users)
 
     brew install git-secrets
 
@@ -345,10 +345,18 @@ Keep this in mind when creating allowed patterns to ensure that your allowed pat
 
 Use the `--no-verify` option in the event of a false positive match in a commit, merge, or commit message. This will skip the execution of the git hook and allow you to make the commit or merge.
 
-### About
+## Author
 
-- Author: [Michael Dowling](https://github.com/mtdowling)
-- Issue tracker: This project's source code and issue tracker can be found at [<https://github.com/awslabs/git-secrets>](https://github.com/awslabs/git-secrets)
+- [Michael Dowling](https://github.com/mtdowling)
+
+## Issue tracker
+
+- This project's source code and issue tracker can be found at [<https://github.com/awslabs/git-secrets>](https://github.com/awslabs/git-secrets)
+
+## Credits
+
 - Special thanks to Adrian Vatchinsky and Ari Juels of Cornell University for providing suggestions and feedback.
 
-Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+## License
+
+[Copyright 2015 Amazon.com, Inc. or its affiliates. All Rights Reserved.](LICENSE)
