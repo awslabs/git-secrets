@@ -2,6 +2,7 @@
 
 Prevents you from committing passwords and other sensitive information to a git repository.
 
+![GitHub](https://img.shields.io/github/license/awslabs/git-secrets?color=dark-green)
 [![Build Status](https://travis-ci.org/awslabs/git-secrets.svg?branch=master)](https://travis-ci.org/awslabs/git-secrets)
 
 ## Synopsis
