@@ -2,6 +2,8 @@
 
 Prevents you from committing passwords and other sensitive information to a git repository.
 
+[![Build Status](https://travis-ci.org/awslabs/git-secrets.svg?branch=master)](https://travis-ci.org/awslabs/git-secrets)
+
 ## Synopsis
 
     git secrets --scan [-r|--recursive] [--cached] [--no-index] [--untracked] [<files>...]
