@@ -182,6 +182,10 @@ Each of these options must appear first on the command line.
     optionally provide the path to an INI file.
 
 
+``--update_hook``
+    This option can be used as part of a server side update hook by adding 
+    `git-secrets  --update_hook -- "$@"` to an update script on a git server
+
 Options for ``--install``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
