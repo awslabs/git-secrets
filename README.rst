@@ -69,8 +69,8 @@ Homebrew (for macOS users)
 
 .. warning::
 
-    You're not done yet! You MUST install the git hooks for every repo that
-    you wish to use with ``git secrets --install``.
+    **You're not done yet! You MUST install the git hooks for every repo that
+    you wish to use with ``git secrets --install``.**
 
 Here's a quick example of how to ensure a git repository is scanned for secrets
 on each commit::
