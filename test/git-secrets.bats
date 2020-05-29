@@ -149,9 +149,9 @@ load test_helper
 
 @test "installs hooks for repo with Debian style directories" {
   setup_bad_repo
-  mkdir $TEST_REPO/.git/hooks/pre-commit.d
-  mkdir $TEST_REPO/.git/hooks/prepare-commit-msg.d
-  mkdir $TEST_REPO/.git/hooks/commit-msg.d
+  mkdir -p $TEST_REPO/.git/hooks/pre-commit.d
+  mkdir -p $TEST_REPO/.git/hooks/prepare-commit-msg.d
+  mkdir -p $TEST_REPO/.git/hooks/commit-msg.d
   run git-secrets --install $TEST_REPO
   [ -f $TEST_REPO/.git/hooks/pre-commit.d/git-secrets ]
   [ -f $TEST_REPO/.git/hooks/prepare-commit-msg.d/git-secrets ]
@@ -358,4 +358,14 @@ load test_helper
 @test "--untracked can only be used with --scan" {
   repo_run git-secrets --list --untracked
   [ $status -eq 1 ]
+}
+
+@test "--version is not nil" {
+  repo_run git-secrets --version
+  [[ -n $output ]]
+}
+
+@test "--version is not 'NOT SET'" {
+  repo_run git-secrets --version
+  [[ $output != "NOT SET" ]]
 }
