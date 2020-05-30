@@ -60,3 +60,20 @@ load test_helper
   [ "${lines[1]}" == "failure1.txt:1:another line... forbidden" ]
   [ "${lines[2]}" == "failure2.txt:1:me" ]
 }
+
+@test "Runs safely with args beyond the system argument length limit" {
+  setup_good_repo
+  repo_run git-secrets --install $TEST_REPO
+  cd $TEST_REPO
+
+  FILENAME_LENGTH="$(getconf NAME_MAX .)"
+  (( FILE_COUNT = ( "$(getconf ARG_MAX)" / "$FILENAME_LENGTH" ) + 1 ))
+
+  for (( i = 0; i < "$FILE_COUNT"; i++ )); do
+    >"$(printf "%0${FILENAME_LENGTH}d" "$i")"
+  done
+
+  run git add .
+  run git commit -m 'This is fine'
+  [ $status -eq 0 ]
+}
