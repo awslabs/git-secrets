@@ -325,7 +325,7 @@ Options for ``--add``
 
 ``-a, --allowed``
     Mark the pattern as allowed instead of prohibited. Allowed patterns are
-    used to filter our false positives.
+    used to filter out false positives.
 
 ``<pattern>``
     The regex pattern to search.
