@@ -58,7 +58,7 @@ the directory to the current user ``PATH``.
 
 ::
 
-    PS > ./install.ps1
+    powershell -file install.ps1
 
 Homebrew (for macOS users)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
