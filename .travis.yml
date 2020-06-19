@@ -1,8 +1,18 @@
 language: bash
 
+env:
+- BASH=builtin
+- BASH=3.2.57
+- BASH=4.4
+
+os:
+- linux
+- osx
+
 before_install:
 - git config --global user.email "you@example.com"
 - git config --global user.name "Your Name"
+- 'if [ "${BASH}" != "builtin" ]; then sudo apt-get update -qq && sudo apt-get install build-essential && wget http://ftp.gnu.org/gnu/bash/bash-${BASH}.tar.gz && tar xf bash-${BASH}.tar.gz && cd bash-${BASH} && ./configure && make && sudo make install; fi'
 
 script:
-- make test
+- /bin/bash -c "git --version; grep --version; bash --version; make test"
