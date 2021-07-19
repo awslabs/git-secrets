@@ -96,10 +96,10 @@ load test_helper
   git add -A
   git commit -m 'initial'
   cd -
-  echo 'first' > "$TEST_REPO/test.txt"
 
   # Test --scan with and without arguments because
-  # the method of scanning is different (git vs. git-grep)
+  # the method of scanning is different (grep vs. git-grep)
+  echo 'first' > "$TEST_REPO/test.txt"
   repo_run git-secrets --scan "$TEST_REPO/test.txt"
   [ $status -eq 0 ]
   repo_run git-secrets --scan
