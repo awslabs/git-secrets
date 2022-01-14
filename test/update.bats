@@ -58,8 +58,7 @@ teardown() {
 
   run git push $TEST_REMOTE master
   [ $status -eq 1 ]
-  [[ "${lines[0]}" =~ ^remote:\ ${hashes[0]}:test.txt:1:@todo ]]
-  [[ "${lines[1]}" =~ ^remote:\ error:\ hook\ declined\ to\ update\ refs/heads/master ]]
+  echo "$output" | grep -F "remote: ${hashes[0]}:test.txt:1:@todo"
 }
 
 @test "fails to push branch when secret words got mixed in a commit" {
@@ -75,8 +74,7 @@ teardown() {
 
   run git push $TEST_REMOTE master
   [ $status -eq 1 ]
-  [[ "${lines[0]}" =~ ^remote:\ ${hashes[0]}:test2.txt:1:@todo ]]
-  [[ "${lines[1]}" =~ ^remote:\ error:\ hook\ declined\ to\ update\ refs/heads/master ]]
+  echo "$output" | grep -F "remote: ${hashes[0]}:test2.txt:1:@todo"
 }
 
 @test "fails to push branch even if secret words are fixed" {
@@ -100,8 +98,7 @@ teardown() {
 
   run git push $TEST_REMOTE master
   [ $status -eq 1 ]
-  [[ "${lines[0]}" =~ ^remote:\ ${hashes[1]}:test.txt:1:@todo ]]
-  [[ "${lines[1]}" =~ ^remote:\ error:\ hook\ declined\ to\ update\ refs/heads/master ]]
+  echo "$output" | grep -F "remote: ${hashes[1]}:test.txt:1:@todo"
 }
 
 @test "Pushes branch when secret words set as allowed patterns" {
