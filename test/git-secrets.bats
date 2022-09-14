@@ -311,6 +311,14 @@ load test_helper
   [ $status -eq 0 ]
 }
 
+@test "Expands ~ in providers" {
+  repo_run git-secrets --add-provider -- '~/test'
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  echo "$output" | grep -F "${HOME}/test"
+}
+
 @test "--recursive cannot be used with SCAN_*" {
   repo_run git-secrets --scan -r --cached
   [ $status -eq 1 ]
