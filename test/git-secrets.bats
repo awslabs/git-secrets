@@ -66,7 +66,7 @@ load test_helper
   echo '@todo' > $TEST_REPO/history_failure.txt
   git add -A
   git commit -m "Testing history"
-  git checkout master
+  git checkout main
   cd -
   repo_run git-secrets --scan-history
   [ $status -eq 1 ]
