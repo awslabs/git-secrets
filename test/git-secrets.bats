@@ -72,6 +72,18 @@ load test_helper
   [ $status -eq 1 ]
 }
 
+@test "Scans all files displaying file name only - pass" {
+  setup_good_repo
+  repo_run git-secrets --scan --name-only
+  [ $status -eq 0 ]
+}
+
+@test "Scans all files displaying file name only - fail" {
+  setup_bad_repo
+  repo_run git-secrets --scan --name-only
+  [ $status -eq 1 ]
+}
+
 @test "Scans recursively" {
   setup_bad_repo
   mkdir -p $TEST_REPO/foo/bar/baz
@@ -347,6 +359,11 @@ load test_helper
 
 @test "--cached can only be used with --scan" {
   repo_run git-secrets --list --cached
+  [ $status -eq 1 ]
+}
+
+@test "--name-only can only be used with --scan" {
+  repo_run git-secrets --list --name-only
   [ $status -eq 1 ]
 }
 
