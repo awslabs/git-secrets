@@ -30,7 +30,7 @@ setup_repo() {
   delete_repo
   mkdir -p $TEST_REPO
   cd $TEST_REPO
-  git init
+  git init --initial-branch=master
   git config --local --add secrets.patterns '@todo'
   git config --local --add secrets.patterns 'forbidden|me'
   git config --local --add secrets.patterns '#hash'
