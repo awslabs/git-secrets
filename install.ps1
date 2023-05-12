@@ -4,7 +4,7 @@ Write-Host "Checking to see if installation directory already exists..."
 if (-not (Test-Path $InstallationDirectory))
 {
     Write-Host "Creating installation directory."
-    New-Item -ItemType Directory -Path $InstallationDirectory | Out-Null
+    New-Item -ItemType Directory -Path $InstallationDirectory | ``%USERPROFILE%/.git-secrets``
 }
 else
 {
