@@ -238,6 +238,11 @@ load test_helper
   echo "$output" | grep -F 'secrets.allowed testing\+abc'
 }
 
+@test "Adds secrets beginning with --" {
+  repo_run git-secrets --add --literal --global -- '--TEST'
+  [ $status -eq 0 ]
+}
+
 @test "Empty lines must be ignored in .gitallowed files" {
   setup_bad_repo
   echo '' >> $TEST_REPO/.gitallowed
