@@ -32,7 +32,7 @@ setup_repo() {
   delete_repo
   mkdir -p $TEST_REPO
   cd $TEST_REPO
-  git init
+  git init --initial-branch=master
   # Uninstall any hooks present in the system template which could interfere
   # with git-secrets
   rm -fr .git/hooks/*
