@@ -162,6 +162,7 @@ Each of these options must appear first on the command line.
     checks are added:
 
     - AWS Access Key IDs via ``(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}``
+    - Amazon Bedrock API keys. Long-lived via ``ABSK[A-Za-z0-9+/]{109,}=*`` and short-lived via ``bedrock-api-key-YmVkcm9jay5hbWF6b25hd3MuY29t``
     - AWS Secret Access Key assignments via ":" or "=" surrounded by optional
       quotes
     - AWS account ID assignments via ":" or "=" surrounded by optional quotes
