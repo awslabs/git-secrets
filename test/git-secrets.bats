@@ -281,6 +281,8 @@ load test_helper
   echo "$output" | grep -F '(A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}'
   echo "$output" | grep "AKIAIOSFODNN7EXAMPLE"
   echo "$output" | grep "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+  echo "$output" | grep -F 'ABSK[A-Za-z0-9+/]{109,}=*'
+  echo "$output" | grep -F 'bedrock-api-key-YmVkcm9jay5hbWF6b25hd3MuY29t'
 }
 
 @test "Adds providers" {
