@@ -106,7 +106,7 @@ Add custom providers to scan for security credentials.
     git secrets --add-provider -- cat /path/to/secret/file/patterns
 
 
-Before making public a repository
+Before making a repository public
 ---------------------------------
 
 With git-secrets is also possible to scan a repository including all revisions:
