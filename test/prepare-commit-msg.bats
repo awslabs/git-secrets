@@ -31,3 +31,34 @@ load test_helper
   run git merge --no-ff feature
   [ $status -eq 0 ]
 }
+
+@test "Works with detached HEAD" {
+  setup_good_repo
+  repo_run git-secrets --install
+  cd $TEST_REPO
+  git commit -m 'OK'
+  git checkout -b branchA
+  echo "A" > a.txt
+  git add -A
+  git commit -m "Commit to branchA"
+  git checkout -f $(git rev-parse master)
+  run git merge --no-ff branchA
+  [ -z "$( echo $output | grep fatal )" ]
+}
+
+@test "Rejects bad merge with detached HEAD" {
+  setup_good_repo
+  repo_run git-secrets --install $TEST_REPO
+  cd $TEST_REPO
+  git commit -m 'OK'
+  git checkout -b feature
+  echo '@todo' > data.txt
+  git add -A
+  git commit -m 'Bad commit' --no-verify
+  echo 'Fixing!' > data.txt
+  git add -A
+  git commit -m 'Fixing commit'
+  git checkout -f $(git rev-parse master)
+  run git merge --no-ff feature
+  [ $status -eq 1 ]
+}
