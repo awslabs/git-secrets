@@ -1,0 +1,34 @@
+---
+name: "Sync README and man page"
+
+on:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'README.rst'
+      - 'git-secrets.1'
+  pull_request:
+    branches:
+      - 'master'
+    paths:
+      - 'README.rst'
+      - 'git-secrets.1'
+
+jobs:
+  sync-readme-man-page:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+      README_CHANGED=$(git diff --exit-code README.rst &>/dev/null; echo $?)
+      MANPAGE_CHANGED=$(git diff --exit-code git-secrets.1 &>/dev/null; echo $?)
+
+      if [[ $README_CHANGE == $MANPAGE_CHANGED ]]; then
+        echo "README and man page in sync."
+        exit 0
+      else
+        echo "README and man page not in sync. Run `make man` to resolve."
+        exit 1
+      fi
+
