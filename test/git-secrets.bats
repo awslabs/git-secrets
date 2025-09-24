@@ -88,6 +88,48 @@ load test_helper
   [ $status -eq 0 ]
 }
 
+@test "Scans preserving spaces in patterns" {
+  cd $TEST_REPO
+  git config --add secrets.patterns 'first pattern'
+  git config --add secrets.patterns 'second pattern'
+  echo 'foo' > "$TEST_REPO/test.txt"
+  git add -A
+  git commit -m 'initial'
+  cd -
+
+  # Test --scan with and without arguments because
+  # the method of scanning is different (grep vs. git-grep)
+  echo 'first' > "$TEST_REPO/test.txt"
+  repo_run git-secrets --scan "$TEST_REPO/test.txt"
+  [ $status -eq 0 ]
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+
+  echo 'second' > "$TEST_REPO/test.txt"
+  repo_run git-secrets --scan "$TEST_REPO/test.txt"
+  [ $status -eq 0 ]
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+
+  echo 'pattern' > "$TEST_REPO/test.txt"
+  repo_run git-secrets --scan "$TEST_REPO/test.txt"
+  [ $status -eq 0 ]
+  repo_run git-secrets --scan
+  [ $status -eq 0 ]
+
+  echo 'first pattern' > "$TEST_REPO/test.txt"
+  repo_run git-secrets --scan "$TEST_REPO/test.txt"
+  [ $status -eq 1 ]
+  repo_run git-secrets --scan
+  [ $status -eq 1 ]
+
+  echo 'second pattern' > "$TEST_REPO/test.txt"
+  repo_run git-secrets --scan "$TEST_REPO/test.txt"
+  [ $status -eq 1 ]
+  repo_run git-secrets --scan
+  [ $status -eq 1 ]
+}
+
 @test "Excludes allowed patterns from failures" {
   git config --add secrets.patterns 'foo="baz{1,5}"'
   git config --add secrets.allowed 'foo="bazzz"'
