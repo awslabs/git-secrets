@@ -274,7 +274,7 @@ load test_helper
 }
 
 @test "Adds common AWS patterns" {
-  repo_run git config --unset-all secrets
+  git config --unset-all secrets.providers || true
   repo_run git-secrets --register-aws
   git config --local --get secrets.providers
   repo_run git-secrets --list
