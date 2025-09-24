@@ -1,4 +1,6 @@
 #!/bin/bash
+# Disallow any system-level git-secret pattern configs
+export GIT_CONFIG_NOSYSTEM="true"
 export TEST_REPO="$BATS_TMPDIR/test-repo"
 export TEMP_HOME="$BATS_TMPDIR/home"
 export TEMPLATE_DIR="${BATS_TMPDIR}/template"
@@ -31,6 +33,9 @@ setup_repo() {
   mkdir -p $TEST_REPO
   cd $TEST_REPO
   git init --initial-branch=master
+  # Uninstall any hooks present in the system template which could interfere
+  # with git-secrets
+  rm -fr .git/hooks/*
   git config --local --add secrets.patterns '@todo'
   git config --local --add secrets.patterns 'forbidden|me'
   git config --local --add secrets.patterns '#hash'
