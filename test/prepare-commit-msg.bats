@@ -13,7 +13,7 @@ load test_helper
   echo 'Fixing!' > data.txt
   git add -A
   git commit -m 'Fixing commit'
-  git checkout master
+  git checkout main
   run git merge --no-ff feature
   [ $status -eq 1 ]
 }
@@ -27,7 +27,7 @@ load test_helper
   echo 'Not bad' > data.txt
   git add -A
   git commit -m 'Good commit'
-  git checkout master
+  git checkout main
   run git merge --no-ff feature
   [ $status -eq 0 ]
 }
