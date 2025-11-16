@@ -21,7 +21,7 @@ Synopsis
     git secrets --add-provider [--global] <command> [arguments...]
     git secrets --register-aws [--global]
     git secrets --aws-provider [<credentials-file>]
-
+    git secrets --remove [-a|--allowed] [-l|--literal] [--global] <pattern>
 
 Description
 -----------
@@ -181,6 +181,9 @@ Each of these options must appear first on the command line.
 ``--aws-provider``
     Secret provider that outputs credentials found in an INI file. You can
     optionally provide the path to an INI file.
+
+``--remove``
+    Removes a pattern or literal from the git config
 
 
 Options for ``--install``
@@ -389,6 +392,43 @@ Registers a secret provider with arguments::
 Cats secrets out of a file::
 
     git secrets --add-provider -- cat /path/to/secret/file/patterns
+
+Options for ``--remove``
+~~~~~~~~~~~~~~~~~~~~~
+
+``--global``
+    Removes patterns from the global git config
+
+``-l, --literal``
+    Escapes special regular expression characters in the provided pattern so
+    that the pattern is searched for literally.
+
+``-a, --allowed``
+    Mark the pattern as allowed instead of prohibited. Allowed patterns are
+    used to filter out false positives.
+
+``<pattern>``
+    The regex pattern to search.
+
+
+Examples
+^^^^^^^^
+
+Removes a prohibited pattern to the current repo::
+
+    git secrets --remove '[A-Z0-9]{20}'
+
+Removes a prohibited pattern to the global git config::
+
+    git secrets --remove --global '[A-Z0-9]{20}'
+
+Removes a string that is scanned for literally (``+`` is escaped)::
+
+    git secrets --remove --literal 'foo+bar'
+
+Removes an allowed pattern::
+
+    git secrets --remove -a 'allowed pattern'
 
 
 Defining prohibited patterns

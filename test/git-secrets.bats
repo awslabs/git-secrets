@@ -361,3 +361,76 @@ load test_helper
   repo_run git-secrets --list --untracked
   [ $status -eq 1 ]
 }
+
+@test "--remove removes added items" {
+  repo_run git-secrets --add "test"
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  echo "${output}" | grep -F 'secrets.patterns test'
+  repo_run git-secrets --remove "test"
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  echo "${output}" | grep -Fv 'secrets.patterns test'
+}
+
+@test "Adds and removes secrets to a repo and de-dedupes" {
+  repo_run git-secrets --add 'testing123'
+  [ $status -eq 0 ]
+  repo_run git-secrets --add 'testing123'
+  [ $status -eq 1 ]
+  repo_run git-secrets --add --literal 'testing+abc'
+  [ $status -eq 0 ]
+  repo_run git-secrets --add -l 'testing+abc'
+  [ $status -eq 1 ]
+  repo_run git-secrets --list
+  echo "$output" | grep -F 'secrets.patterns @todo'
+  echo "$output" | grep -F 'secrets.patterns forbidden|me'
+  echo "$output" | grep -F 'secrets.patterns testing123'
+  echo "$output" | grep -F 'secrets.patterns testing\+abc'
+  repo_run git-secrets --remove 'testing123'
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  echo "$output" | grep -Fv 'secrets.patterns testing123'
+  repo_run git-secrets --remove 'testing123'
+  [ $status -eq 0 ]
+  repo_run git-secrets --remove --literal 'testing+abc'
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  echo "$output" | grep -Fv 'secrets.patterns testing\+abc'
+  repo_run git-secrets --remove -l 'testing+abc'
+  [ $status -eq 0 ]
+}
+
+@test "Adds and removes allowed patterns to a repo and de-dedupes" {
+  repo_run git-secrets --add -a 'testing123'
+  [ $status -eq 0 ]
+  repo_run git-secrets --add --allowed 'testing123'
+  [ $status -eq 1 ]
+  repo_run git-secrets --add -a -l 'testing+abc'
+  [ $status -eq 0 ]
+  repo_run git-secrets --add -a -l 'testing+abc'
+  [ $status -eq 1 ]
+  repo_run git-secrets --list
+  echo "$output" | grep -F 'secrets.patterns @todo'
+  echo "$output" | grep -F 'secrets.patterns forbidden|me'
+  echo "$output" | grep -F 'secrets.allowed testing123'
+  echo "$output" | grep -F 'secrets.allowed testing\+abc'
+  repo_run git-secrets --remove -a 'testing123'
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  echo "$output" | grep -Fv 'secrets.allowed testing123'
+  repo_run git-secrets --remove --allowed 'testing123'
+  [ $status -eq 0 ]
+  repo_run git-secrets --remove -a -l 'testing+abc'
+  [ $status -eq 0 ]
+  repo_run git-secrets --list
+  [ $status -eq 0 ]
+  echo "$output" | grep -Fv 'secrets.allowed testing\+abc'
+  repo_run git-secrets --remove -a -l 'testing+abc'
+  [ $status -eq 0 ]
+}
