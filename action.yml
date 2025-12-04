@@ -1,0 +1,94 @@
+---
+# Scan with git-secrets
+#
+# EXAMPLE USAGE
+#
+# - uses: awslabs/git-secrets
+#   with:
+#     checkout: true
+#     fetch-depth: 0
+#     ref: ''
+#     scan-type: '--scan'
+branding:
+  color: 'orange'
+  icon: 'activity'
+description: Scan the repository history with git-secrets with register-aws
+inputs:
+  checkout:
+    default: true
+    description: 'If "true" will checkout, otherwise the GITHUB_WORKSPACE already checked out'
+    required: false
+    type: boolean
+  fetch-depth:
+    default: '0'
+    description: 'The fetch-depth if `checkout` is "true", ignored otherwise'
+    required: false
+    type: string
+  ref:
+    default: ''
+    description: 'A version, ref, or hash of awslabs/git-secrets to use with the default branch as the default'
+    required: false
+    type: string
+  scan-type:
+    default: '--scan'
+    description: 'The type of scan'
+    required: false
+    type: choice
+    options:
+      - '--scan'
+      - '--scan-history'
+name: scan
+runs:
+  steps:
+    - name: Setup environmental variables
+      run: |
+        # Setup environmental variables
+        echo "GIT_SECRETS_REPOSITORY_PATH=$GITHUB_WORKSPACE/git-secrets-repository" >> "$GITHUB_ENV"
+      shell: bash
+    - name: Checkout awslabs/git-secrets
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
+      with:
+        repository: 'awslabs/git-secrets'
+        ref: ${{ inputs.ref }}
+        path: ${{ env.GIT_SECRETS_REPOSITORY_PATH }}
+    - env:
+        PREFIX : ${{ runner.temp }}/git-secrets-prefix
+        MANPREFIX: ${{ runner.temp }}/git-secrets-manprefix
+      name: Make git-secrets
+      run: |
+        # Make git-secrets
+        cd $GIT_SECRETS_REPOSITORY_PATH
+        make install;
+        # Add to the PATH
+        echo "$PREFIX/bin/" >> "$GITHUB_PATH"
+        # No longer need the source
+        cd $GITHUB_WORKSPACE
+        rm -r -f $GIT_SECRETS_REPOSITORY_PATH
+      shell: bash
+    - if: inputs.checkout
+      name: Checkout the repository to scan history
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 #v4.2.2
+      with:
+        fetch-depth: ${{ inputs.fetch-depth }} # to scan history
+    - name: Install git-secrets
+      run: |
+        echo "::group::Install git-secrets"
+        git-secrets --install
+        echo "::endgroup::"
+        echo "::group::Register AWS"
+        git-secrets --register-aws
+        echo "::endgroup::"
+        echo "::group::List git-secrets"
+        git-secrets --list
+        echo "::endgroup::"
+        echo "::group::Allowed git-secrets"
+        cat .gitallowed || echo ""
+        echo "::endgroup::"
+      shell: bash
+    - name: Scan with git-secrets
+      run: |
+        # Scan with git-secrets
+        echo "Scan with git-secrets"
+        git-secrets ${{ inputs.scan-type }}
+      shell: bash
+  using: "composite"
